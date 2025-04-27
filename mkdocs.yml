@@ -1,0 +1,68 @@
+site_name: ImmunoMind
+site_url: https://immunomind.github.io/docs
+repo_url: https://github.com/immunomind/immunarch
+repo_name: immunomind/immunarch
+
+docs_dir: docs/source
+
+nav:
+  - Getting started:
+      - intro/introduction.md
+  - Concepts:
+      - concepts/data-units.md
+      - concepts/aggregation.md
+      - concepts/immutability.md
+  - Guides:
+      - guides/first-steps.md
+      - Explore and compare immune repertoires:
+          - guides/installation.md
+          - guides/data-loading.md
+      - Discover and analyse immune receptors:
+          - guides/data-loading.md
+      - guides/faq.md
+  - Tutorials:
+      - tutorials/single-cell.md
+  - API reference:
+      - api/reference.md
+  - Support:
+      - tutorials/single-cell.md
+  - Ecosystem:
+      - tutorials/single-cell.md
+  - About:
+      - tutorials/single-cell.md
+
+theme:
+  name: material
+  icon:
+    logo: fontawesome/solid/frog
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+      primary: blue grey
+      accent: amber
+
+    - scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+      primary: indigo
+      accent: blue
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+
+markdown_extensions:
+  - pymdownx.details
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+plugins:
+  - search:
+      lang: en
