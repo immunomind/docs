@@ -37,6 +37,7 @@ jobs:
           packages: |
             any::knitr
             any::reticulate
+          cache-version: ${{ github.run_number }}
 
       - name: Point reticulate at CI Python
         run: echo "RETICULATE_PYTHON=$(python -c 'import sys; print(sys.executable)')" >> $GITHUB_ENV
