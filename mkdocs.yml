@@ -8,48 +8,48 @@ docs_dir: docs/source
 nav:
   - Getting started:
     - What is immunarch + immundata?: intro/introduction.md
-    - Installation: intro/installation.md
-    - Quick start: intro/quick-start.md
+    # - Installation: intro/installation.md
+    # - Quick start: intro/quick-start.md
   - Concepts:
       - concepts/data-units.md
       - concepts/aggregation.md
       - concepts/immutability.md
-      - concepts/materialization-lazy-computations.md
-      - concepts/atomization.md
-      - concepts/duckdb-arrow.md
+      # - concepts/materialization-lazy-computations.md
+      # - concepts/atomization.md
+      # - concepts/duckdb-arrow.md
   - Guides:
-    - IO:
-      - Ingesting repertoire files: guides/ingest-repertoires.md
-      - Metadata merge: guides/ingest-metadata.md
-      - Preprocessing and postprocessing: guides/preprocessing.md
-      - guides/output.md
-    - Transformations:
-      - Filter: guides/output.md
-      - Annotate: guides/output.md
+    # - IO:
+      # - Ingesting repertoire files: guides/ingest-repertoires.md
+      # - Metadata merge: guides/ingest-metadata.md
+      # - Preprocessing and postprocessing: guides/preprocessing.md
+      # - guides/output.md
+    # - Transformations:
+      # - Filter: guides/output.md
+      # - Annotate: guides/output.md
     - Repertoire-level analysis:
       - guides/installation.md
       - guides/data-loading.md
     - Receptor-level analysis:
       - guides/data-loading.md
-    - Use cases:
-      - guides/bulk.md
-      - guides/paired-chain.md
-      - guides/single-cell.md
+    # - Use cases:
+      # - guides/bulk.md
+      # - guides/paired-chain.md
+      # - guides/single-cell.md
     - guides/faq.md
   - Tutorials:
       - tutorials/single-cell.qmd
   - API reference:
       - api/reference.md
-  - Community & support:
-      - How to get help: community/support.md # links to GitHub Issues, Discord, etc.
-      - Contributing guide: community/contributing.md
-      - Code of conduct: community/code-of-conduct.md
-  - Ecosystem:
-      - ecosystem/overview.md
-      - ecosystem/friends.md
-      - AIRR-GPT assistant: ecosystem/airr-gpt.md
-  - About:
-      - tutorials/single-cell.qmd
+  # - Community & support:
+      # - How to get help: community/support.md # links to GitHub Issues, Discord, etc.
+      # - Contributing guide: community/contributing.md
+      # - Code of conduct: community/code-of-conduct.md
+  # - Ecosystem:
+      # - ecosystem/overview.md
+      # - ecosystem/friends.md
+      # - AIRR-GPT assistant: ecosystem/airr-gpt.md
+  # - About:
+      # - tutorials/single-cell.qmd
 
 theme:
   name: material
