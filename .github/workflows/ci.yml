@@ -46,4 +46,4 @@ jobs:
       - name: Point reticulate at CI Python
         run: echo "RETICULATE_PYTHON=$(python -c 'import sys; print(sys.executable)')" >> $GITHUB_ENV
       
-      - run: mkdocs gh-deploy --force
+      - run: mkdocs gh-deploy --force --clean
