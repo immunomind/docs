@@ -1,3 +1,13 @@
-# Aggregation
+# Aggregation: defining receptors and repertoires
 
-blah blah
+The moment data leave an AIRR-assembly tool such as **Cell Ranger**, you are handed an ocean of individual V(D)J chains, yet every biological question you care about is phrased in terms of receptors ("this αβ TCR") or repertoires ("all receptors from donor A on day 30"). As with "receptors as logical units", the underlying assumption the second concept is based upon is *researchers work with rearrangements but think in receptors*. `immundata` formalises the climb from raw chains to those higher-order concepts through **controlled aggregation** – explicit, user-defined rules that transform data without obscuring their origin.
+
+The function `agg_receptors()` lets you declare what *one receptor* means in your study. You choose a schema – perhaps "pair chains that share a barcode and have complementary α and β loci" or "group every IGH with whatever IGL shares the same CDR3 amino-acid sequence." The function re-aggregates the data and returns a new `ImmunData` object, so you keep the previous receptor definition intact; every receptor now has a stable identifier and can be traced back to its constituent chains and barcode. There is no need to touch the downstream pipeline – just change the input.
+
+The function `agg_repertoires()` states how receptors should be bundled into biologically meaningful cohorts: all receptors from a biopsy, from a therapy responder, from a single-cell-defined cluster, or any combination of metadata columns. The result is a physical `idata$repertoires` table with basic statistics (numbers of chains, barcodes, and unique receptors), again preserving direct links to the receptors it aggregates.
+
+Because these aggregation steps live in your pipeline rather than being buried inside helper functions, they deliver two major pay-offs:
+
+- **Convenience with rigour:** you can run high-level computations – Jaccard coefficients, diversity indices – knowing that the exact receptor definition is stored alongside the result, so you never mis-specify parameters such as `"cdr3+v"`;
+
+- **Provenance and data lineage by design:** every receptor records every chain it contains, every repertoire records every receptor, and the full recipe is stored in the object's metadata. Six months later – or six reviewers later – you can trace any summary statistic back to the precise chains that produced it, enabling fully reproducible pipelines with no hidden transformations.

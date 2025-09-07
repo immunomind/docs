@@ -11,13 +11,25 @@ nav:
     # - Installation: intro/installation.md
     # - Quick start: intro/quick-start.md
   - Concepts:
+    - Basics:
+      - concepts/basics.md
       - concepts/data-units.md
       - concepts/aggregation.md
       - concepts/immutability.md
-      # - concepts/materialization-lazy-computations.md
-      # - concepts/atomization.md
-      # - concepts/duckdb-arrow.md
-  - Guides:
+    - Workflow:
+      - concepts/phase_ingestion.md
+      - concepts/phase_transformation.md
+    # - Analysis:
+      # - concepts/receptor-level + family of functions
+      # - concepts/repertoire-level
+      # - concepts/barcode-level
+      # - concepts/biomarker_discovery
+      # - concepts/feature_engineering
+    # - Internals:
+      # - concepts/duckdb-arrow-parquet.md
+      # - concepts/extend_immunarch.md
+      # - concepts/data_engineering.md
+  - User guide:
     # - IO:
       # - Ingesting repertoire files: guides/ingest-repertoires.md
       # - Metadata merge: guides/ingest-metadata.md
@@ -36,6 +48,8 @@ nav:
       # - guides/paired-chain.md
       # - guides/single-cell.md
     - guides/faq.md
+  # - How to:
+  #     - tutorials/single-cell.qmd
   - Tutorials:
       - tutorials/single-cell.qmd
   - API reference:
@@ -83,6 +97,7 @@ markdown_extensions:
   - pymdownx.blocks.details
   - pymdownx.tabbed:
       alternate_style: true
+  - tables
 
 plugins:
   - mkquartodocs

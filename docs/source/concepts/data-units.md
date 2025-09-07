@@ -1,3 +1,19 @@
-# Basic data units
+# Units: chain -> barcode -> receptor
 
-blah blah
+Basic units of data operations are:
+
+- **Chain** is one V(D)J rearranged molecule / contig / chemistry read (e.g. a single TRA, TRB, IGH, IGL). This is a minimally possible data unit, a building block of everything.
+In case of single-chain data, chain is the same as barcode. Never changes after ingest; you can always drill back to the exact sequence.
+
+- **Barcode** is a physical container that stores zero, one, or many chains. In single‑cell it's a droplet == cell; in bulk it's the same as assembled "clonotype"; in spatial it's a spot. Barcode sometimes equals to cell. It is a biological unit that "stores" relevant biological data and uses for aggregation of same chains and computing counts of same receptors coming from different barcodes. Inherits any per‑cell / per‑sample metadata you add.
+
+- **Receptor** is a logical unit. A logical grouping of chains that you want to treat as one biological receptor. This is a minimal unit for AIRR statistics. There are two components to it: receptor features and receptor chains, alltogether comprising a receptor schema that you define in order to do downstream analysis. Receptor features are usually CDR3 amino acid sequences or CDR3 amino acid sequences plus Variable gene segment. Receptor chains can be: single chain, α+β pair, heavy+light pair, or even all chains sharing the same CDR3/V/J.
+
+To summarise: chains are how `immundata` stores the information, barcodes bundle chains together, and receptors are the minimal units on which repertoire statistics are computed.
+
+| Term               | In plain English                                                                                         | How **immundata** represents it                                                                                                             | **Role**                                                              |
+| ------------------ | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| **Chain**          | A single V(D)J transcript (e.g. *TRA* or *IGH*) coming from one read or contig.                          | One row in the physical table `idata$annotations`; retains `locus`, `cdr3`, `umis`/`reads` and other crucial rearrangement characteristics. | **Raw data unit** – atomic building block.                            |
+| **Barcode / Cell** | The droplet (10x), spot (Visium) or well a chain was captured in.                                        | Column `imd_barcode`.                                                                                                                       | **Physical bundle** – groups chains that share a capture compartment. |
+| **Receptor**       | The biological receptor you analyse: a single chain **or** a paired set (αβ, Heavy-Light) from one cell. | Virtual table `idata$receptors`; unique ID `imd_receptor_id`.                                                                               | **Logical unit** – minimal object for AIRR statistics.                |
+| **Repertoire**     | A set of receptors grouped by sample, donor, cluster, etc.                                               | Physical table `idata$repertoires`; unique ID `imd_repertoire_id`; grouping columns you choose.                                             | **Aggregate unit** – higher-level grouping for comparative analysis.  |
