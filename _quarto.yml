@@ -1,0 +1,6 @@
+format:
+  gfm: default
+engine: knitr
+execute:
+  cache: true
+  freeze: auto

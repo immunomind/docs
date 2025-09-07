@@ -1,0 +1,20 @@
+---
+title: "Bilingual demo (R & Python)"
+format: gfm
+engine: knitr
+---
+
+This page executes both languages and shows them under tabs.
+
+=== "Python"
+
+    ```{python}
+    sum([1,2,3,4])
+    ```
+
+=== "R"
+
+    ```{r}
+    sum(1:5)
+    plot(c(1,2,3), c(4,5,6))
+    ```

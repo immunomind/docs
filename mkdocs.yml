@@ -1,5 +1,5 @@
-site_name: ImmunoMind
-site_url: https://immunomind.github.io/docs
+site_name: immunomind.
+site_url: https://immunarch.com
 repo_url: https://github.com/immunomind/immunarch
 repo_name: immunomind/immunarch
 
@@ -7,34 +7,53 @@ docs_dir: docs/source
 
 nav:
   - Getting started:
-      - intro/introduction.md
+    - What is immunarch + immundata?: intro/introduction.md
+    - Installation: intro/installation.md
+    - Quick start: intro/quick-start.md
   - Concepts:
       - concepts/data-units.md
       - concepts/aggregation.md
       - concepts/immutability.md
+      - concepts/materialization-lazy-computations.md
+      - concepts/atomization.md
+      - concepts/duckdb-arrow.md
   - Guides:
-      - guides/first-steps.md
-      - Explore and compare immune repertoires:
-          - guides/installation.md
-          - guides/data-loading.md
-      - Discover and analyse immune receptors:
-          - guides/data-loading.md
-      - guides/faq.md
+    - IO:
+      - Ingesting repertoire files: guides/ingest-repertoires.md
+      - Metadata merge: guides/ingest-metadata.md
+      - Preprocessing and postprocessing: guides/preprocessing.md
+      - guides/output.md
+    - Transformations:
+      - Filter: guides/output.md
+      - Annotate: guides/output.md
+    - Repertoire-level analysis:
+      - guides/installation.md
+      - guides/data-loading.md
+    - Receptor-level analysis:
+      - guides/data-loading.md
+    - Use cases:
+      - guides/bulk.md
+      - guides/paired-chain.md
+      - guides/single-cell.md
+    - guides/faq.md
   - Tutorials:
-      - tutorials/single-cell.md
+      - tutorials/single-cell.qmd
   - API reference:
       - api/reference.md
-  - Support:
-      - tutorials/single-cell.md
+  - Community & support:
+      - How to get help: community/support.md # links to GitHub Issues, Discord, etc.
+      - Contributing guide: community/contributing.md
+      - Code of conduct: community/code-of-conduct.md
   - Ecosystem:
-      - tutorials/single-cell.md
+      - ecosystem/overview.md
+      - ecosystem/friends.md
+      - AIRR-GPT assistant: ecosystem/airr-gpt.md
   - About:
-      - tutorials/single-cell.md
+      - tutorials/single-cell.qmd
 
 theme:
   name: material
-  icon:
-    logo: fontawesome/solid/frog
+  logo: ../assets/logo.png
   palette:
     - scheme: default
       toggle:
@@ -60,9 +79,15 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.superfences
+  - pymdownx.blocks.admonition
+  - pymdownx.blocks.details
   - pymdownx.tabbed:
       alternate_style: true
 
 plugins:
+  - mkquartodocs
   - search:
       lang: en
+
+hooks:
+  - hooks.py
