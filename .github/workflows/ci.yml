@@ -37,6 +37,7 @@ jobs:
           packages: |
             any::knitr
             any::reticulate
+            any::rmarkdown
           cache-version: ${{ github.run_number }}
 
       - name: Point reticulate at CI Python
