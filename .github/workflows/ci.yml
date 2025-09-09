@@ -38,6 +38,8 @@ jobs:
             any::knitr
             any::reticulate
             any::rmarkdown
+            github::immunomind/immundata
+            github::immunomind/immunarch
           cache-version: ${{ github.run_number }}
 
       - name: Point reticulate at CI Python
