@@ -1,0 +1,22 @@
+/* Light scheme */
+:root,
+:root > [data-md-color-scheme="default"] {
+  /* Primary (deep ocean blue) */
+  --md-primary-fg-color: #004080;
+  --md-primary-fg-color--light: #2a6fb4; /* tint */
+  --md-primary-fg-color--dark:  #002046; /* shade */
+
+  /* Accent (teal 700) — readable on white */
+  --md-accent-fg-color: #00796b;
+}
+
+/* Dark scheme (slate) */
+:root > [data-md-color-scheme="slate"] {
+  /* Slightly brighter for dark backgrounds */
+  --md-primary-fg-color: #2a6fb4;
+  --md-primary-fg-color--light: #5a97cf;
+  --md-primary-fg-color--dark:  #1a4f85;
+
+  /* Accent (bright cyan) — pops on dark */
+  --md-accent-fg-color: #00c2ff;
+}

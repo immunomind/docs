@@ -7,18 +7,18 @@ docs_dir: docs/source
 
 nav:
   - Getting started:
-    - What is immunarch + immundata?: intro/introduction.md
-    # - Installation: intro/installation.md
-    # - Quick start: intro/quick-start.md
+    - index.md
+    - Installation: intro/installation.md
+    - Quick start: intro/quick-start.md
   - Concepts:
     - Basics:
-      - concepts/basics.md
-      - concepts/data-units.md
-      - concepts/aggregation.md
-      - concepts/immutability.md
+      - concepts/basics/overview.md
+      - concepts/basics/data-units.md
+      - concepts/basics/aggregation.md
+      - concepts/basics/immutability.md
     - Workflow:
-      - concepts/phase_ingestion.md
-      - concepts/phase_transformation.md
+      - concepts/workflow/phase-ingestion.md
+      - concepts/workflow/phase-transformation.md
     # - Analysis:
       # - concepts/receptor-level + family of functions
       # - concepts/repertoire-level
@@ -43,27 +43,24 @@ nav:
       - guides/data-loading.md
     - Receptor-level analysis:
       - guides/data-loading.md
-    # - Use cases:
-      # - guides/bulk.md
-      # - guides/paired-chain.md
-      # - guides/single-cell.md
+    # - Biomarker discovery:
+    #   - guides/
+    # - Feature engineering:
+    #   - guides/
     - guides/faq.md
   # - How to:
-  #     - tutorials/single-cell.qmd
+  #     - howto/gene-usage.qmd
   - Tutorials:
-      - tutorials/single-cell.qmd
+      - tutorials/single-cell/single-cell.qmd
+      - tutorials/migration.md
   - API reference:
       - api/reference.md
-  # - Community & support:
+  # - Support:
       # - How to get help: community/support.md # links to GitHub Issues, Discord, etc.
+      # - Translations: support/translation.md
       # - Contributing guide: community/contributing.md
       # - Code of conduct: community/code-of-conduct.md
-  # - Ecosystem:
-      # - ecosystem/overview.md
-      # - ecosystem/friends.md
-      # - AIRR-GPT assistant: ecosystem/airr-gpt.md
-  # - About:
-      # - tutorials/single-cell.qmd
+      # - Authors
 
 theme:
   name: material
@@ -85,12 +82,18 @@ theme:
   features:
     - navigation.tabs
     - navigation.tabs.sticky
+    - content.tabs.link
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.sections
+    - navigation.expand
 
 markdown_extensions:
   - pymdownx.details
   - attr_list
+  - md_in_html
   - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_index:     !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.superfences
   - pymdownx.blocks.admonition
@@ -103,6 +106,39 @@ plugins:
   - mkquartodocs
   - search:
       lang: en
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: en
+          default: true
+          name: "🌚 English"
+          build: true
+        - locale: es
+          name: "🇪🇸 Español"
+          # build: true
+          build: false
+        - locale: pt-BR
+          name: "🇧🇷 Português (BR)"
+          # build: true
+          build: false
+        - locale: zh
+          name: "🇨🇳 简体中文"
+          build: true
+          # build: false
+        - locale: ko
+          name: "🇰🇷 한국어"
+          # build: true
+          build: false
+        - locale: ja
+          name: "🇯🇵 日本語"
+          # build: true
+          build: false
 
 hooks:
   - hooks.py
+
+extra_css:
+  - stylesheets/extra.css

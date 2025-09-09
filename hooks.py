@@ -1,5 +1,23 @@
 import re
 
+try:
+    import mkquartodocs.plugin as mq
+except Exception:
+    mq = None
+
+if mq and hasattr(mq, "MkQuartodocsConfig"):
+
+    def _cfg_contains(self, key):
+        return isinstance(key, str) and hasattr(self, key)
+
+    def _cfg_getitem(self, key):
+        if not isinstance(key, str):
+            raise KeyError(key)
+        return getattr(self, key)
+
+    mq.MkQuartodocsConfig.__contains__ = _cfg_contains
+    mq.MkQuartodocsConfig.__getitem__ = _cfg_getitem
+
 # Quarto wrapper lines:
 #  ::: {.cell}               (open)
 #  ::: {.cell-output ...}    (open)

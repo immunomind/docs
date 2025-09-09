@@ -2,12 +2,17 @@
 
 Basic units of data operations are:
 
-- **Chain** is one V(D)J rearranged molecule / contig / chemistry read (e.g. a single TRA, TRB, IGH, IGL). This is a minimally possible data unit, a building block of everything.
-In case of single-chain data, chain is the same as barcode. Never changes after ingest; you can always drill back to the exact sequence.
+- **Chain** is a single V(D)J sequence record (read/contig/molecule), e.g., TRA, TRB, IGH, or IGL. This is a minimally possible data unit, a building block of everything. It is the smallest sequence-level unit and remains immutable after ingest so you can always drill down to its exact nucleotide/amino-acid sequence and annotations.
 
-- **Barcode** is a physical container that stores zero, one, or many chains. In single‑cell it's a droplet == cell; in bulk it's the same as assembled "clonotype"; in spatial it's a spot. Barcode sometimes equals to cell. It is a biological unit that "stores" relevant biological data and uses for aggregation of same chains and computing counts of same receptors coming from different barcodes. Inherits any per‑cell / per‑sample metadata you add.
+- **Barcode** is a physical container that can hold 0, 1, or multiple chains.
+    - Single-cell: a droplet/cell barcode.
+    - Spatial: a spot barcode (may capture transcripts from multiple cells).
+    - Bulk: the term “barcode” is not used; instead, sequences are grouped into "clonotypes" within a sample.
+It is a biological unit that "stores" relevant biological data and is used for aggregation of same chains and computing counts of same receptors coming from different barcodes. Inherits any per‑cell / per‑sample metadata you add.
 
-- **Receptor** is a logical unit. A logical grouping of chains that you want to treat as one biological receptor. This is a minimal unit for AIRR statistics. There are two components to it: receptor features and receptor chains, alltogether comprising a receptor schema that you define in order to do downstream analysis. Receptor features are usually CDR3 amino acid sequences or CDR3 amino acid sequences plus Variable gene segment. Receptor chains can be: single chain, α+β pair, heavy+light pair, or even all chains sharing the same CDR3/V/J.
+- **Receptor** is a logical grouping of chains that represents one biological receptor instance used for downstream analysis and reporting. All immune repertoire statistics or receptor tracking is computed on receptors. It is defined by a user-specified receptor schema consisting of:
+    - Receptor features: typically CDR3 amino-acid (AA) sequence, optionally combined with V gene (and, if desired, J gene or length).
+    - Receptor chains: e.g., single chain, α+β (TCR), heavy+light (BCR), or other well-defined groupings. In multi-chain cases (e.g., dual-α), specify your pairing/merging rules.
 
 To summarise: chains are how `immundata` stores the information, barcodes bundle chains together, and receptors are the minimal units on which repertoire statistics are computed.
 

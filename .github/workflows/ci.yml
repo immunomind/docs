@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: 3.x
 
-      - run: pip install mkdocs-material mkquartodocs
+      - run: pip install mkdocs-material mkquartodocs mkdocs-static-i18n
 
       - uses: r-lib/actions/setup-r@v2
 
