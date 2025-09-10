@@ -10,6 +10,7 @@ nav:
     - Home: index.md
     - Installation: intro/installation.md
     - Quick start: intro/quick-start.md
+    - F.A.Q.: intro/faq.md
   - Concepts:
     - Basics:
       - concepts/basics/overview.md
@@ -64,7 +65,7 @@ nav:
 
 theme:
   name: material
-  logo: ../assets/phoenix_cl2.png
+  logo: assets/phoenix_cl2.png
   palette:
     - scheme: default
       toggle:
