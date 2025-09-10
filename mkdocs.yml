@@ -7,7 +7,7 @@ docs_dir: docs/source
 
 nav:
   - Getting started:
-    - index.md
+    - Home: index.md
     - Installation: intro/installation.md
     - Quick start: intro/quick-start.md
   - Concepts:
@@ -51,7 +51,7 @@ nav:
   # - How to:
   #     - howto/gene-usage.qmd
   - Tutorials:
-      - tutorials/single-cell/single-cell.qmd
+      - tutorials/single-cell.qmd
       - tutorials/migration.md
   - API reference:
       - api/reference.md
@@ -64,7 +64,7 @@ nav:
 
 theme:
   name: material
-  logo: ../assets/logo.png
+  logo: ../assets/phoenix_cl2.png
   palette:
     - scheme: default
       toggle:
@@ -83,8 +83,7 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
     - content.tabs.link
-    - navigation.instant
-    - navigation.instant.progress
+    - content.code.copy
     - navigation.sections
     - navigation.expand
 
@@ -116,24 +115,24 @@ plugins:
           default: true
           name: "🌚 English"
           build: true
-        - locale: es
-          name: "🇪🇸 Español"
-          # build: true
-          build: false
-        - locale: pt-BR
-          name: "🇧🇷 Português (BR)"
-          # build: true
-          build: false
         - locale: zh
           name: "🇨🇳 简体中文"
-          build: true
-          # build: false
+          # build: true
+          build: false
         - locale: ko
           name: "🇰🇷 한국어"
           # build: true
           build: false
         - locale: ja
           name: "🇯🇵 日本語"
+          # build: true
+          build: false
+        - locale: es
+          name: "🇪🇸 Español"
+          # build: true
+          build: false
+        - locale: pt-BR
+          name: "🇧🇷 Português (BR)"
           # build: true
           build: false
 

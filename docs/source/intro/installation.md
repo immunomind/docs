@@ -1,3 +1,3 @@
-# Introduction
+# Installation
 
 What, why and how.
