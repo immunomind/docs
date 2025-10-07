@@ -25,7 +25,7 @@
 </div>
 
 <p align="center">
-  <a href="https://immunomind.github.io/docs/tutorials/single-cell/">Tutorials</a>
+  <a href="https://immunomind.github.io/docs/tutorials/single_cell/">Tutorials</a>
   |
   <a href="https://immunomind.github.io/docs/api/reference/">API reference</a>
   |
@@ -43,7 +43,7 @@
 
     Get set up fast and verify your environment.
 
-    [:octicons-arrow-right-24: Start here](intro/installation)
+    [:octicons-arrow-right-24: Start here](intro/installation.md)
 
 -   :material-lightning-bolt: **Quick start**
 
@@ -51,7 +51,7 @@
 
     Run your first analysis in 5 minutes.
 
-    [:octicons-arrow-right-24: Run it here](intro/quick-start)
+    [:octicons-arrow-right-24: Run it here](intro/quick_start.md)
 
 -   :material-school: **Tutorials**
 
@@ -59,7 +59,7 @@
 
     Hands-on, end-to-end guides from zero to plots.
 
-    [:octicons-arrow-right-24: Explore](tutorials/single-cell)
+    [:octicons-arrow-right-24: Explore](tutorials/single_cell.md)
 
 >   :material-hammer-wrench: **How-tos**
 > 

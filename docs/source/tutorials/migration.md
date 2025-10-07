@@ -1,10 +1,10 @@
 # Migration from immunarch v0.9 to v1.0
 
-This guide is for existing `immunarch` users. If you're new to `immunarch`, you can safely skip this section and jump straight to the tutorials, where we'll install `immunarch` together and start analyzing *your* immune repertoire data.
+This guide is for existing `immunarch` users. If you're new to `immunarch`, you can safely skip this tutorial.
 
-**Note:** The 0.9.x versions of `immunarch` are no longer supported. If something breaks (e.g., due to a dependency update), it will not be fixed. I highly recommend upgrading to version 1.0 as soon as possible, especially since feature parity will be achieved within a few months.
+**Note:** The 0.9.y versions of `immunarch` (e.g., 0.9.1) are no longer supported. If something breaks (e.g., due to a dependency update), it will not be fixed. I highly recommend upgrading to version 0.10 as soon as possible. Version 0.10 serves as a pre-release version for 1.0, and feature parity between 0.9 and 1.0 will be achieved within a few months. Once it is done, the version 0.10.x will be switched to 1.0.
 
-We're prioritizing feature parity, stability, and enhancements for the most common workflows as well as advanced use cases relevant to immunotherapy development. If you need help with migration or run into issues, please open an issue on GitHub - I'm happy to help.
+I'm prioritizing feature parity, stability, and enhancements for the most common workflows as well as advanced use cases relevant to immunotherapy development. If you need help with migration or run into issues, please open an issue on GitHub - I'm happy to help.
 
 ---
 
@@ -30,7 +30,7 @@ This same idea applies across the package: overlap, clonality, gene usage, and m
 
 ### 3) Fewer heavy dependencies
 
-Many packages were moved from `Depends` to `Suggests`. As a result, `immunarch` now installs much faster and brings in far fewer dependencies. The 0.9 series would pull in around 140 packages on a clean machine, while v1.0 is closer to 88. If you use a feature that requires an optional package, you'll see a clear prompt telling you what to install.
+Many packages were moved from `Depends` to `Suggests`. As a result, `immunarch` now installs much faster and brings in far fewer dependencies. The 0.9 version would pull in around 140 packages on a clean machine, while 0.10 is closer to 88. If you use a feature that requires an optional package, you'll see a clear prompt telling you what to install.
 
 ### 4) Working with visualizations
 

@@ -59,7 +59,7 @@ Transformation is a loop of annotation → modification and computation → visu
   
       2) simply mutate on the whole dataset using `dplyr` syntax, like compute edit distance to a specific pattern using `mutate_immundata`;
   
-      3) more complex compute that requires a function to apply to values and is probably not supported by `duckplyr`. See the [🧠 Advanced Topics](#-advanced-topics) for more details.
+      3) more complex compute that requires a function to apply to values and is probably not supported by `duckplyr`.
       
   4. **Save / plot #1:**
   

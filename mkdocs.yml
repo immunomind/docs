@@ -8,18 +8,18 @@ docs_dir: docs/source
 nav:
   - Getting started:
     - Home: index.md
-    - Installation: intro/installation.md
-    - Quick start: intro/quick-start.md
-    - F.A.Q.: intro/faq.md
+    - intro/installation.md
+    - intro/quick_start.md
   - Concepts:
+    - concepts/glossary.md
     - Basics:
       - concepts/basics/overview.md
-      - concepts/basics/data-units.md
+      - concepts/basics/data_units.md
       - concepts/basics/aggregation.md
       - concepts/basics/immutability.md
     - Workflow:
-      - concepts/workflow/phase-ingestion.md
-      - concepts/workflow/phase-transformation.md
+      - concepts/workflow/phase_ingestion.md
+      - concepts/workflow/phase_transformation.md
     # - Analysis:
       # - concepts/receptor-level + family of functions
       # - concepts/repertoire-level
@@ -32,27 +32,29 @@ nav:
       # - concepts/data_engineering.md
   - User guide:
     # - IO:
-      # - Ingesting repertoire files: guides/ingest-repertoires.md
-      # - Metadata merge: guides/ingest-metadata.md
-      # - Preprocessing and postprocessing: guides/preprocessing.md
-      # - guides/output.md
+    #   - Ingesting repertoire files: guides/ingest-repertoires.md
+    #   - Metadata merge: guides/ingest-metadata.md
+    #   - Preprocessing and postprocessing: guides/preprocessing.md
+    #   - guides/snapshots.md
+    #   - guides/output.md
     # - Transformations:
-      # - Filter: guides/output.md
-      # - Annotate: guides/output.md
-    - Repertoire-level analysis:
-      - guides/installation.md
-      - guides/data-loading.md
-    - Receptor-level analysis:
-      - guides/data-loading.md
+    #   - Filter: guides/output.md
+    #   - Annotate: guides/output.md
+    # - Repertoire-level analysis:
+    #   - guides/installation.md
+    #   - guides/data_loading.md
+    # - Receptor-level analysis:
+    #   - guides/data_loading.md
     # - Biomarker discovery:
-    #   - guides/
+    #   - guides/biomarkers.md
     # - Feature engineering:
-    #   - guides/
+    #   - guides/features.md
     - guides/faq.md
   # - How to:
+  #     - howto/snapshots.qmd
   #     - howto/gene-usage.qmd
   - Tutorials:
-      - tutorials/single-cell.qmd
+      - tutorials/single_cell.qmd
       - tutorials/migration.md
   - API reference:
       - api/reference.md
