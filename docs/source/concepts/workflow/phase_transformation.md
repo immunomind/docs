@@ -65,7 +65,7 @@ Transformation is a loop of annotation → modification and computation → visu
   
       Cache the `ImmunData`. Use `ggplot2` to visualise the statistics, computed from `ImmunData`.
   
-  5)  **Annotate ImmunData with the computed statistics:**
+  5.  **Annotate ImmunData with the computed statistics:**
   
       `annotate_immundata()` (again) joins the freshly minted statistics back to the canonical dataset.
   
@@ -73,6 +73,6 @@ Transformation is a loop of annotation → modification and computation → visu
   
       Save the `ImmunData` with new annotations to disk. Plot the results of analysis.
   
-  6)  **Export ImmunData annotations:**
+  6.  **Export ImmunData annotations:**
   
       Write the annotated data back to the cell-level dataset (Seurat / AnnData) for the subsequent analysis. Additionally, you could write the `ImmunData` itself to disk if needed.
