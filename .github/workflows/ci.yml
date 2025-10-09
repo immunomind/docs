@@ -22,22 +22,18 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: 3.x
+          python-version: '3.12'
 
       - run: pip install mkdocs-material mkquartodocs mkdocs-static-i18n
 
       - uses: r-lib/actions/setup-r@v2
 
-      - name: Reset pak state
-        run: |
-          rm -rf ~/.cache/R/pak ~/.local/share/r-pak ~/.local/state/r-pak || true
-
-      - uses: r-lib/actions/setup-r-dependencies@v2
+      - name: Install immunarch and immundata
+        uses: r-lib/actions/setup-r-dependencies@v2
         with:
+          use-public-rspm: true
+          upgrade: 'TRUE' 
           packages: |
-            any::knitr
-            any::reticulate
-            any::rmarkdown
             any::Seurat
             any::BiocFileCache
             any::ggplot2
@@ -45,7 +41,6 @@ jobs:
             any::ggsci
             github::immunomind/immundata@dev
             github::immunomind/immunarch@dev
-          cache-version: ${{ github.run_number }}
 
       - name: Point reticulate at CI Python
         run: echo "RETICULATE_PYTHON=$(python -c 'import sys; print(sys.executable)')" >> $GITHUB_ENV
