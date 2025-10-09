@@ -34,12 +34,12 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          packages: |
+          extra-packages: |
             any::knitr
             any::reticulate
             any::rmarkdown
-            github::immunomind/immundata
-            github::immunomind/immunarch
+            github::immunomind/immundata@dev
+            github::immunomind/immunarch@dev
           cache-version: ${{ github.run_number }}
 
       - name: Point reticulate at CI Python
