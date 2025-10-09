@@ -34,10 +34,15 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: |
+          packages: |
             any::knitr
             any::reticulate
             any::rmarkdown
+            any::Seurat
+            any::BiocFileCache
+            any::ggplot2
+            any::ggthemes
+            any::ggsci
             github::immunomind/immundata@dev
             github::immunomind/immunarch@dev
           cache-version: ${{ github.run_number }}
