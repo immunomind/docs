@@ -27,8 +27,6 @@ jobs:
       - run: pip install mkdocs-material mkquartodocs mkdocs-static-i18n
 
       - uses: r-lib/actions/setup-r@v2
-        with:
-          use-public-rspm: true
 
       - name: Install immunarch and immundata
         uses: r-lib/actions/setup-r-dependencies@v2
