@@ -1,4 +1,4 @@
-## Load single-cell AIRR-C with loci (TRA/TRB pairing) to immunarch in R
+# Load single-cell sequencing immune repertoire data in AIRR-C format to `immunarch` in R
 
 Use this when your single-cell data export is AIRR-C and includes cell barcodes and a `locus` column.
 

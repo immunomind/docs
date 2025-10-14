@@ -1,4 +1,4 @@
-# Load bulk immune repertoire data in AIRR-C format to `immunarch` in R
+# Load bulk sequencing immune repertoire data in AIRR-C format to `immunarch` in R
 
 Use this for bulk AIRR Rearrangement TSVs (one row per rearrangement/receptor). Requirements: installed `immunarch`.
 

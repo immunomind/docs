@@ -4,15 +4,15 @@
 
 1. **Q: My workflows are slow! But you promised the new `immunarch` and `immundata` would be faster!**
 
-   A: There are a few cases where `immunarch 1.0` (powered by `immundata`) may be slower than `immunarch 0.9` or other tools.
+    A: There are a few cases where `immunarch 1.0` (powered by `immundata`) may be slower than `immunarch 0.9` or other tools.
 
-   - If your dataset is small, the overhead of managing DuckDB can be larger than the computation itself.
+    - If your dataset is small, the overhead of managing DuckDB can be larger than the computation itself.
 
-   - Remember *immutability*? If you don't create snapshots to cache results, the **entire pipeline (including file reads)** will run again. That may be why it feels slower. Create snapshots with `immundata::write_immundata()` after heavy steps. For example, when you're done annotating with scRNA-seq clusters or other metadata, save the updated `ImmunData` to disk so those steps don't rerun.
+    - Remember *immutability*? If you don't create snapshots to cache results, the **entire pipeline (including file reads)** will run again. That may be why it feels slower. Create snapshots with `immundata::write_immundata()` after heavy steps. For example, when you're done annotating with scRNA-seq clusters or other metadata, save the updated `ImmunData` to disk so those steps don't rerun.
 
-   You can run `duckplyr::explain(idata$annotations)` to see the query plan. If it's long and hard to scroll, that's a good sign you should snapshot.
+    You can run `duckplyr::explain(idata$annotations)` to see the query plan. If it's long and hard to scroll, that's a good sign you should snapshot.
 
-   It can feel inconvenient at first, but it gets easier. If anything is unclear, open an issue, and I'll add tutorials and best-practice guides. The benefits of this `dplyr`-like, immutable workflow are worth it.
+    It can feel inconvenient at first, but it gets easier. If anything is unclear, open an issue, and I'll add tutorials and best-practice guides. The benefits of this `dplyr`-like, immutable workflow are worth it.
 
 
 ## Data – reading, writing, formats, engineering

@@ -88,7 +88,7 @@ idata <- read_repertoires(
 
 ---
 
-## Load 10x Genomics V(D)J (paired TRA+TRB) to `immunarch` in R
+# Load 10x Genomics V(D)J (paired TRA+TRB) to `immunarch` in R
 
 **Intro:** Use this to build paired α/β repertoires from 10x contig annotations.
 
