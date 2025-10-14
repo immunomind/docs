@@ -50,9 +50,33 @@ nav:
     # - Feature engineering:
     #   - guides/features.md
     - guides/faq.md
-  # - How to:
-  #     - howto/snapshots.qmd
-  #     - howto/gene-usage.qmd
+  - How-to:
+    - Input:
+      - Bulk AIRR-C: howto/read_airr_bulk.md
+      - Single-cell AIRR-C: howto/read_airr_sc.md
+      # - 10x Genomics, single-chain: howto/read_10x_single.md
+      # - 10x Genomics, paired-chain: howto/read_10x_paired.md
+    #
+    # URGENT NOW
+    #
+    #   - howto/metadata_input_files.qmd # Load immune repertoire files to R (and Python) using metadata
+    #   - howto/metadata_sample_info.qmd # Add sample information using metadata
+
+    #
+    # NEXT STEP
+    #
+    #   - howto/read_mixcr_bulk.md
+    #   - howto/read_mixcr_sc.md
+    #   - howto/read_bd.md
+    #   - howto/read_dandelion.md
+    #   - howto/read_immcantation.md
+    #   - howto/read_parsebio.md
+    #   - howto/read_trust4.md
+    #   - howto/read_wat3r.md
+      - Import old `immunarch` data: howto/immunarch_import.md
+    - Performance:
+      # - howto/snapshots.qmd
+      - howto/no_threads.md
   - Tutorials:
       - tutorials/single_cell.qmd
       - tutorials/migration.md
