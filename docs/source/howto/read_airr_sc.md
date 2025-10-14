@@ -39,7 +39,7 @@ Use this when your single-cell data export is AIRR-C and includes cell barcodes 
     idata <- read_repertoires(
       path        = "/path/to/sc_airr/*.tsv",
       schema      = schema,
-      metadata  = your_metadata_table,
+      metadata    = your_metadata_table,
       barcode_col = "cell_id",
       locus_col   = "locus",
       umi_col     = "umi_count",
@@ -48,13 +48,13 @@ Use this when your single-cell data export is AIRR-C and includes cell barcodes 
 
     # If you already know the repertoire schema:
     idata <- read_repertoires(
-      path        = "/path/to/sc_airr/*.tsv",
-      schema      = schema,
-      metadata  = your_metadata_table,
-      barcode_col = "cell_id",
-      locus_col   = "locus",
-      umi_col     = "umi_count",
-      preprocess  = make_default_preprocessing("airr"),
+      path              = "/path/to/sc_airr/*.tsv",
+      schema            = schema,
+      metadata          = your_metadata_table,
+      barcode_col       = "cell_id",
+      locus_col         = "locus",
+      umi_col           = "umi_count",
+      preprocess        = make_default_preprocessing("airr"),
       repertoire_schema = c("Patient", "Cluster", "Response")
     )
     ```

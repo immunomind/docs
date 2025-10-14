@@ -24,28 +24,28 @@ Use this for bulk AIRR Rearrangement TSVs (one row per rearrangement/receptor). 
     schema <- make_receptor_schema(features = c("cdr3_aa", "v_call"))
 
     idata <- read_repertoires(
-      path      = "/path/to/bulk_airr/*.tsv",
-      schema    = schema,
-      count_col = "umi_count",
+      path       = "/path/to/bulk_airr/*.tsv",
+      schema     = schema,
+      count_col  = "umi_count",
       preprocess = make_default_preprocessing("airr")
     )
 
     # If you have metadata, you can use it:
     idata <- read_repertoires(
-      path      = "/path/to/bulk_airr/*.tsv",
-      metadata  = your_metadata_table,
-      schema    = schema,
-      count_col = "umi_count",
+      path       = "/path/to/bulk_airr/*.tsv",
+      metadata   = your_metadata_table,
+      schema     = schema,
+      count_col  = "umi_count",
       preprocess = make_default_preprocessing("airr")
     )
 
     # If you already know the repertoire schema:
     idata <- read_repertoires(
-      path      = "/path/to/bulk_airr/*.tsv",
-      metadata  = your_metadata_table,
-      schema    = schema,
-      count_col = "umi_count",
-      preprocess = make_default_preprocessing("airr"),
+      path              = "/path/to/bulk_airr/*.tsv",
+      metadata          = your_metadata_table,
+      schema            = schema,
+      count_col         = "umi_count",
+      preprocess        = make_default_preprocessing("airr"),
       repertoire_schema = c("Patient", "Cluster", "Response")
     )
     ```
