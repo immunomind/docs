@@ -17,7 +17,7 @@ nav:
       - concepts/basics/data_units.md
       - concepts/basics/aggregation.md
       - concepts/basics/immutability.md
-      # - concepts/basics/data_schema.md # what columns are used for what
+      - concepts/basics/data_schema.md
     - Workflow:
       - concepts/workflow/phase_ingestion.md
       - concepts/workflow/phase_transformation.md
@@ -57,6 +57,7 @@ nav:
       - Single-cell AIRR-C: howto/read_airr_sc.md
       # - 10x Genomics, single-chain: howto/read_10x_single.md
       # - 10x Genomics, paired-chain: howto/read_10x_paired.md
+      - Import old `immunarch` data: howto/immunarch_import.md
     #
     # URGENT NOW
     #
@@ -74,7 +75,8 @@ nav:
     #   - howto/read_parsebio.md
     #   - howto/read_trust4.md
     #   - howto/read_wat3r.md
-      - Import old `immunarch` data: howto/immunarch_import.md
+    # - Analysis:
+      # - howto/big_receptors.qmd
     - Performance:
       # - howto/snapshots.qmd
       - howto/no_threads.md
