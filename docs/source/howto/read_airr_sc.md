@@ -19,7 +19,7 @@ Use this when your single-cell data export is AIRR-C and includes cell barcodes 
 === "R"
 
     ```r
-    library(immundata)
+    library(immunarch)
 
     # If you have two chains, you can select one and filter out others:
     schema <- make_receptor_schema(features = c("junction_aa", "v_call"), chains = c("TCRA"))

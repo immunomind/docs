@@ -17,7 +17,7 @@ Use this for bulk AIRR Rearrangement TSVs (one row per rearrangement/receptor). 
 === "R"
 
     ```r
-    library(immundata)
+    library(immunarch)
 
     schema <- make_receptor_schema(features = c("junction_aa", "v_call"))
     # Alternative:

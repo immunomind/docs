@@ -17,7 +17,7 @@ All specific function details and arguments are available on the corresponding w
 
     ---
 
-    Unified data layer for immune repertoire data.
+    Unified data layer for immune repertoires.
 
     [:octicons-arrow-right-24: API reference](https://immunomind.github.io/immundata/reference)
 

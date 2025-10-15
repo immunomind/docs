@@ -17,6 +17,7 @@ nav:
       - concepts/basics/data_units.md
       - concepts/basics/aggregation.md
       - concepts/basics/immutability.md
+      # - concepts/basics/data_schema.md # what columns are used for what
     - Workflow:
       - concepts/workflow/phase_ingestion.md
       - concepts/workflow/phase_transformation.md
@@ -165,6 +166,11 @@ plugins:
 
 hooks:
   - hooks.py
+
+extra:
+  analytics:
+    provider: google
+    property: G-G5JZNSNPH6
 
 extra_css:
   - stylesheets/extra.css

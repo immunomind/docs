@@ -74,7 +74,7 @@
 * `schema`: restrict to the locus you want (e.g., `"TRB"`)
 
 ```r
-library(immundata)
+library(immunarch)
 
 schema <- make_receptor_schema(features = c("v_call", "j_call", "cdr3"), chains = "TRB")
 idata <- read_repertoires(
@@ -107,7 +107,7 @@ idata <- read_repertoires(
 * `schema`: expect both loci (`TRA`, `TRB`)
 
 ```r
-library(immundata)
+library(immunarch)
 
 schema <- make_receptor_schema(features = c("cdr3"), chains = c("TRA", "TRB"))
 idata <- read_repertoires(
