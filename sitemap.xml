@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://immunarch.com/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/api/reference/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/api/reference/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/api/reference/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/concepts/glossary/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/glossary/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/glossary/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/concepts/basics/aggregation/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/basics/aggregation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/basics/aggregation/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/concepts/basics/data_units/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/basics/data_units/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/basics/data_units/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/concepts/basics/immutability/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/basics/immutability/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/basics/immutability/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/concepts/basics/overview/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/basics/overview/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/basics/overview/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/concepts/workflow/phase_ingestion/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/workflow/phase_ingestion/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/workflow/phase_ingestion/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/concepts/workflow/phase_transformation/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/workflow/phase_transformation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/workflow/phase_transformation/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/guides/data_schema/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/guides/data_schema/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/guides/data_schema/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/guides/faq/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/guides/faq/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/guides/faq/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/howto/immunarch_import/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/howto/immunarch_import/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/howto/immunarch_import/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/howto/no_threads/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/howto/no_threads/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/howto/no_threads/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/howto/read_10_single/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/howto/read_10_single/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/howto/read_10_single/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/howto/read_airr_bulk/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/howto/read_airr_bulk/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/howto/read_airr_bulk/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/howto/read_airr_sc/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/howto/read_airr_sc/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/howto/read_airr_sc/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/intro/installation/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/intro/installation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/intro/installation/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/intro/quick_start/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/intro/quick_start/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/intro/quick_start/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/tutorials/migration/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/tutorials/migration/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/tutorials/migration/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/tutorials/single_cell/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/tutorials/single_cell/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/tutorials/single_cell/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/api/reference/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/api/reference/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/api/reference/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/concepts/glossary/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/glossary/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/glossary/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/concepts/basics/aggregation/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/basics/aggregation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/basics/aggregation/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/concepts/basics/data_units/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/basics/data_units/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/basics/data_units/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/concepts/basics/immutability/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/basics/immutability/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/basics/immutability/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/concepts/basics/overview/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/basics/overview/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/basics/overview/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/concepts/workflow/phase_ingestion/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/workflow/phase_ingestion/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/workflow/phase_ingestion/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/concepts/workflow/phase_transformation/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/concepts/workflow/phase_transformation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/concepts/workflow/phase_transformation/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/guides/data_schema/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/guides/data_schema/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/guides/data_schema/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/guides/faq/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/guides/faq/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/guides/faq/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/howto/immunarch_import/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/howto/immunarch_import/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/howto/immunarch_import/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/howto/no_threads/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/howto/no_threads/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/howto/no_threads/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/howto/read_10_single/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/howto/read_10_single/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/howto/read_10_single/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/howto/read_airr_bulk/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/howto/read_airr_bulk/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/howto/read_airr_bulk/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/howto/read_airr_sc/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/howto/read_airr_sc/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/howto/read_airr_sc/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/intro/installation/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/intro/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/intro/installation/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/intro/quick_start/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/intro/quick_start/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/intro/quick_start/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/tutorials/migration/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/tutorials/migration/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/tutorials/migration/"/>
+    </url>
+    <url>
+        <loc>https://immunarch.com/zh/tutorials/single_cell/</loc>
+        <lastmod>2025-10-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://immunarch.com/zh/tutorials/single_cell/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://immunarch.com/tutorials/single_cell/"/>
+    </url>
+</urlset>
