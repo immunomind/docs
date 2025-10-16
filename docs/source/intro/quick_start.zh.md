@@ -1,8 +1,8 @@
-# Quick Start
+# 快速上手（Quick Start）
 
-A five‑minute tour: load `immunarch`, get example data, run core analyses, and ingest AIRR data with the bundled `immundata` tools.
+五分钟导览：加载 `immunarch`，获取示例数据，运行核心分析，并使用随包提供的 `immundata` 工具摄取 AIRR 数据。
 
-## 1) Load the toolkit
+## 1) 加载工具包
 
 === "R"
 
@@ -10,58 +10,58 @@ A five‑minute tour: load `immunarch`, get example data, run core analyses, and
     library(immunarch)
     ```
 
-## 2) Get example data and set a grouping
+## 2) 获取示例数据并设置分组
 
 === "R"
 
     ```r
-    # Small demo dataset
+    # 小型演示数据集
     idata <- get_test_idata() |> agg_repertoires("Therapy")
 
-    # Print a compact summary
+    # 打印精简摘要
     idata
     ```
 
-## 3) First‑look analyses
+## 3) 初步分析（First-look analyses）
 
 === "R"
 
     ```r
-    # Gene usage (e.g., V gene)
+    # 基因使用（例如 V 基因）
     airr_stats_genes(idata, gene_col = "v_call") |> vis()
 
-    # Publicity / overlap
+    # 公共性 / 重叠
     airr_public_jaccard(idata) |> vis()
 
-    # Clonality (proportion bins)
+    # 克隆性（丰度分箱）
     airr_clonality_prop(idata)
 
-    # Diversity (evenness)
+    # 多样性（均匀度）
     airr_diversity_pielou(idata) |> vis()
     ```
 
-## 4) (Optional) Annotate clonality per receptor and plot in Seurat
+## 4)（可选）按受体注释克隆性并在 Seurat 中绘图
 
 === "R"
 
     ```r
-    # Add per‑receptor clonality labels
+    # 添加每受体的克隆性标签
     idata <- annotate_clonality_prop(idata)
 
-    # Copy labels to a Seurat object by barcode and color UMAP
-    # (Assumes you created `sdata` earlier in your workflow)
+    # 按条形码把标签拷贝到 Seurat 对象并给 UMAP 上色
+    #（假设你在流程早前已创建了 `sdata`）
     sdata <- annotate_seurat(idata, sdata, cols = "clonal_prop_bin")
     Seurat::DimPlot(sdata, reduction = "umap", group.by = "clonal_prop_bin", shuffle = TRUE)
     ```
 
-## 5) (Optional) Ingest AIRR data with the bundled data layer
+## 5)（可选）使用随包的数据层摄取 AIRR 数据
 
-`immundata` ships with `immunarch`. You can call its readers directly for flexible ingestion.
+`immundata` 与 `immunarch` 一起发布。你可以直接调用其读取函数以灵活导入。
 
 === "R"
 
     ```r
-    # Read AIRR TSVs (toy example)
+    # 读取 AIRR TSV（示例）
     md_path <- system.file("extdata/tsv", "metadata.tsv", package = "immundata")
     files <- c(
         system.file("extdata/tsv", "sample_0_1k.tsv", package = "immundata"),
@@ -75,10 +75,10 @@ A five‑minute tour: load `immunarch`, get example data, run core analyses, and
     metadata = md
     )
 
-    # Continue with immunarch analyses
+    # 继续进行 immunarch 分析
     idata |> agg_repertoires("Therapy") |> airr_clonality_prop()
     ```
 
-## Next steps
+## 后续步骤（Next steps）
 
-* Explore our detailed [Tutorials](../tutorials/single_cell.md).
+* 查看我们的详细[教程](../tutorials/single_cell.md)。

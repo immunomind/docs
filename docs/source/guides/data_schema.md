@@ -1,4 +1,4 @@
-# `ImmunData` schema
+# `ImmunData` structure
 
 This page defines the **internal tables and standard column names** used inside an `ImmunData` object. These names are stable across functions in `immundata` and packages, which depend on it, such as `immunarch`.
 

@@ -1,16 +1,17 @@
 # Units: chain -> barcode -> receptor
 
-Basic units of data operations are:
+The first key concept is about basic units of data operations. These units are:
 
-- **Chain** is a single V(D)J sequence record (read/contig/molecule), e.g., TRA, TRB, IGH, or IGL. This is a minimally possible data unit, a building block of everything. It is the smallest sequence-level unit and remains immutable after ingest so you can always drill down to its exact nucleotide/amino-acid sequence and annotations.
+- **Chain is a single V(D)J sequence record** (read/contig/molecule), e.g., TRA, TRB, IGH, or IGL with V(D)J gene and any other information, including gene expression and immunogenicity. This is a minimally possible data unit, a building block of everything. It is the smallest sequence-level unit and remains immutable after ingest so you can always drill down to its exact nucleotide/amino-acid sequence and annotations.
 
-- **Barcode** is a physical container that can hold 0, 1, or multiple chains.
+- **Barcode is a physical container** that can hold 0, 1, or multiple chains.
     - Single-cell: a droplet/cell barcode.
     - Spatial: a spot barcode (may capture transcripts from multiple cells).
-    - Bulk: the term “barcode” is not used; instead, sequences are grouped into "clonotypes" within a sample.
-It is a biological unit that "stores" relevant biological data and is used for aggregation of same chains and computing counts of same receptors coming from different barcodes. Inherits any per‑cell / per‑sample metadata you add.
+    - Bulk: the term “barcode” is not used, effectively making each chain a separate "barcode".
 
-- **Receptor** is a logical grouping of chains that represents one biological receptor instance used for downstream analysis and reporting. All immune repertoire statistics or receptor tracking is computed on receptors. It is defined by a user-specified receptor schema consisting of:
+    It is a biological unit that "stores" relevant biological data and is used for aggregation of same chains and computing counts of same receptors coming from different barcodes.
+
+- **Receptor is a logical grouping** of chains that represents one biological receptor instance used for downstream analysis and reporting. All immune repertoire statistics or receptor tracking is computed on receptors. It is defined by a user-specified receptor schema consisting of:
     - Receptor features: typically CDR3 amino-acid (AA) sequence, optionally combined with V gene (and, if desired, J gene or length).
     - Receptor chains: e.g., single chain, α+β (TCR), heavy+light (BCR), or other well-defined groupings. In multi-chain cases (e.g., dual-α), specify your pairing/merging rules.
 

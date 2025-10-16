@@ -17,7 +17,6 @@ nav:
       - concepts/basics/data_units.md
       - concepts/basics/aggregation.md
       - concepts/basics/immutability.md
-      - concepts/basics/data_schema.md
     - Workflow:
       - concepts/workflow/phase_ingestion.md
       - concepts/workflow/phase_transformation.md
@@ -44,12 +43,16 @@ nav:
     # - Repertoire-level analysis:
     #   - guides/installation.md
     #   - guides/data_loading.md
+    # - Repertoire similarity:
+    #   - guides/installation.md
     # - Receptor-level analysis:
     #   - guides/data_loading.md
     # - Biomarker discovery:
-    #   - guides/biomarkers.md
-    # - Feature engineering:
     #   - guides/features.md
+    #   - guides/biomarkers.md
+    - Data structure:
+      - guides/data_schema.md
+      # - guides/immundata_format.md
     - guides/faq.md
   - How-to:
     - Input:
@@ -147,23 +150,18 @@ plugins:
           build: true
         - locale: zh
           name: "🇨🇳 简体中文"
-          # build: true
-          build: false
+          build: true
         - locale: ko
           name: "🇰🇷 한국어"
-          # build: true
           build: false
         - locale: ja
           name: "🇯🇵 日本語"
-          # build: true
           build: false
         - locale: es
           name: "🇪🇸 Español"
-          # build: true
           build: false
         - locale: pt-BR
           name: "🇧🇷 Português (BR)"
-          # build: true
           build: false
 
 hooks:

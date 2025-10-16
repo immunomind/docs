@@ -58,18 +58,21 @@
 
     - `duckplyr` glues `dplyr` verbs (filter, mutate, summarise, …) to DuckDB SQL, so your R code looks exactly like a tidyverse pipeline while the heavy lifting happens in C++.
 
-    When you call `read_repertoires()`, immundata writes `Arrow` parts, registers them with `DuckDB`, and returns a `duckplyr` table. Every later verb is lazily translated into SQL; nothing is materialised until a step truly needs physical data (e.g. a plot or an algorithm that exists only in R).
+    When you call `read_repertoires()`, `immundata` reads `Parquet` files, registers them with `DuckDB`, and returns a `duckplyr` table – a data frame-like structure that is in reality a lightweight database connection to `DuckdDB`. Every later operation is lazily translated into SQL - a special language for quering databases. Nothing is materialised (i.e., computed and output) until a workflow step truly needs physical data (e.g. a plot or an algorithm that exists only in R).
 
-    References
+    References:
+
     1. [Arrow for R – columnar file format](https://arrow.apache.org/docs/r/)
+
     2. [DuckDB – embedded analytical database](https://duckdb.org/)
+
     3. [duckplyr – API/implementation details](https://duckplyr.tidyverse.org/index.html)
 
 3.  **Q: Why do you need to create Parquet files with receptors and annotations?**
 
     A: Those are intermediate files, optimized for future data operations, and working with them significantly accelerates `immundata`.
 
-4.  **Q: Why does `immundata` support only the AIRR standard?!**
+4.  **Q: Why does `immundata` support only the AIRR-C file format?!**
 
     A: The short answer is because a single, stable schema beats a zoo of drifting ones.
     
@@ -78,6 +81,20 @@
     The long answer is that the amount of investments required not only for the development, but also for the continued support of parsers for different formats, is astonishing. I developed parsers for 10+ formats for `tcR` / `immunarch` packages. I would much prefer for upstream tool developers not to change their format each minor version, breaking pretty much all downstream pipelines and causing all sorts of pain to end users and tools developers – mind you, without bearing a responsibility to at least notify, but ideally fix the broken formats they introduced. The time of the Wild West is over. The AIRR community did an outstanding job creating its standard. Please urge the creators of your favourite tools or fellow developers to use this format or a superset, like `immundata` does.
 
     `immundata` does not and will not explicitly support other formats. This is both a practical stance and communication of crucial values, put into `immundata` as part of a broader ecosystem of AIRR tools. The domain is already too complex, and we need to work together to make this complexity manageable. A healthy ecosystem is not the same as a complex ecosystem.
+
+4.  **Q: What do I do then? I really need the output from package `X` in `immunarch`...**
+
+    A: In the previous question, I outlined the motivation behind focusing on AIRR-C format only.
+
+    There are four practical steps that you can do:
+
+    * (recommended) Ask the maintainer of the package `X` to support the AIRR-C file format. It is not that hard to implement.
+    
+    * Use `read_repertoires` from `immundata` and create your own reader. Helpful links: [`read_repertoires` reference](https://immunomind.github.io/immundata/reference/read_repertoires.html) and the [full documentation website](https://immunomind.github.io/docs/).
+
+    * Use the community-driven package `work-in-progress` to read files as it provides more parsers. Link: TBD
+
+    * If `work-in-progress` doesn't support the desired file format, you can create your own parser using `read_repertoires` and contribute it to `work-in-progress`. I personally would greatly appreciate it.
 
 12. **Q: Why are the counts for receptors available only after all the aggregation?**
 
