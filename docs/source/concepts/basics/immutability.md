@@ -1,6 +1,6 @@
 # Pipeline-based execution: immutability and materialisation
 
-We talked a lot about data traceability or data lineage in the first two concepts. But it makes sense to implement the data lineage only if every workflow step is re-playable. Or, as we call it, reproducible. To make results reproducible, every analysis step must be easy to run again without any side effects, when the underlying data is changed.
+We talked a lot about data traceability or data lineage in the first two concepts. But it makes sense to implement the data lineage only if every workflow step is re-playable. Or, as we call it, reproducible. To make results reproducible, every analysis step must be easy to run again without any side effects (i.e., without mutating the underlying data) and, given the same inputs, producing the same outputs.
 In `immundata`-powered pipelines, an analysis is a **pipeline of immutable transformations**:
 
 * Each function returns a **new** `ImmunData` object.
