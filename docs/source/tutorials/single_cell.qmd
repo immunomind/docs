@@ -333,6 +333,8 @@ To visualize gene expression and link it with immune repertoires, load the expre
     
     sdata[["umap"]] <- umap_dr
     
+    # Do this for compatability with Seurat 5.3.1
+    cells$ident[is.na(cells$ident)] <- "NA"
     Idents(sdata) <- setNames(cells$ident, cells$barcode)
     
     DimPlot(sdata, reduction = "umap", order = sort(unique(cells$ident), decreasing = TRUE), label = TRUE, alpha = .5)
