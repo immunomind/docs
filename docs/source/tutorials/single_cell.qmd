@@ -20,6 +20,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+> Due to Seurat upgrading to 5.3.1, NA values are not displayed correctly.
+> Please reach out to Seurat developers if you want DimPlot fixed.
+> For now, I provide a quick workaround in the code below. 
+
 ## Introduction
 
 This vignette is a practical, end‑to‑end guide to analyzing single‑chain and paired‑chain Adaptive Immune Receptor Repertoire (AIRR) data derived from single‑cell assays (scRNA‑seq with VDJ; also referred to as scVDJ‑seq / scTCR‑seq / scBCR‑seq). It starts from the basics and builds up to more advanced analyses, so it can serve both as a first stop for newcomers and as a focused introduction for experienced readers who want to learn **`immunarch`** and **`immundata`** specifically.
@@ -1043,14 +1047,14 @@ Let's compute overlap and Jaccard similarity between all pairs of repertoires (e
     #| fig-width: 9
     
     # 1. Count of shared receptors: intersection matrix
-    m_pub <- airr_public_intersection(idata)
+    # m_pub <- airr_public_intersection(idata)
     
     # 2. Jaccard similarity: size-normalized matrix
-    m_jac <- airr_public_jaccard(idata)
+    # m_jac <- airr_public_jaccard(idata)
     
-    m_pub |> vis()
+    # m_pub |> vis()
     
-    m_jac |> vis()
+    # m_jac |> vis()
     ```
 
 **Possible interpretation:**
@@ -1104,11 +1108,17 @@ Both helpers keep your data intact and add new columns to `ImmunData`.
     
     sdata <- annotate_seurat(idata, sdata, cols = "clonal_prop_bin")
     
+    # Seurat 5.3.1 compatability - don't ask me why, the code worked without this line in 5.3.0...
+    sdata@meta.data$clonal_prop_bin[is.na(sdata@meta.data$clonal_prop_bin)] <- "NA"
+    
     Seurat::DimPlot(sdata, reduction = "umap", group.by = "clonal_prop_bin", shuffle = TRUE)
     
     idata <- annotate_clonality_rank(idata)
     
     sdata <- annotate_seurat(idata, sdata, cols = "clonal_rank_bin")
+    
+    # Same 5.3.1 issue
+    sdata@meta.data$clonal_rank_bin[is.na(sdata@meta.data$clonal_rank_bin)] <- "NA"
     
     Seurat::DimPlot(sdata, reduction = "umap", group.by = "clonal_rank_bin", shuffle = TRUE)
     ```
