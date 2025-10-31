@@ -20,3 +20,25 @@
   /* Accent (bright cyan) — pops on dark */
   --md-accent-fg-color: #00c2ff;
 }
+
+/* More gap between section blocks in the primary (left) sidebar */
+/* .md-sidebar--primary .md-nav__list > .md-nav__item--section:not(:first-child) {
+  margin-top: 10rem;
+} */
+
+/* (Optional) a bit of breathing room above the section title itself */
+/* .md-sidebar--primary .md-nav__item--section > .md-nav__title {
+  padding-top: 0.2rem;
+} */
+
+/* Indent items that live under a top-level section title
+   to create a blank left gutter */
+.md-sidebar--primary .md-nav__item--section > .md-nav,
+.md-sidebar--primary .md-nav__item--section > nav.md-nav {
+  margin-left: 0.25rem;   /* size of the gutter */
+}
+
+/* (optional) keep links comfy after the shift */
+/* .md-sidebar--primary .md-nav__item--section > .md-nav .md-nav__link {
+  padding-left: 0.1rem;
+} */

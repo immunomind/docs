@@ -1,0 +1,9 @@
+# Repertoire schema
+
+To compute repertoire‑level statistics such as gene‑segment usage or annotation, run repertoire similarity methods like the Jaccard coefficient, or infer the incidence of public receptors, you first need to define a repertoire. In `immundata` a repertoire is simply a group of receptors that share one or more values from annotation columns. Typical examples of repertoires are patients, tissues for specific patients, patient-specific single-cell clustered populations of T- or B-cells.
+
+Just like with receptors, you can pass a schema to specify how receptors are grouped into repertoires.
+
+For the bulk data, usually, you rely on the metadata table. It could be useful when you want to aggregate together receptors from the same donor or tissue, and then analyse it. Or you may want to filter out non-responders to analyse the responders only. The true power of regrouping repertoires opens up when you work with single-cell data, where you can pass additional information such as cluster information from the SeuratObject or AnnData to annotate immune receptors, and the re-define repertoires.
+
+Important: don't confuse grouping of immune repertoires with grouping in plots. When you define an immune repertoire, all the proportions are recomputed, and each receptor assigned a unique repertoire identifier for faster computations. You create virtual "tables" with immune receptors, and you can work with them separately using filters or mutations, despite that the underlying data structure is still stored as a huge singular table with all receptors. When you plot data, you first compute statistics per defined immune repertoire, and then you group it however you want. You can later plot or re‑group the resulting statistics, but the order of operations matters.

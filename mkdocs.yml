@@ -10,36 +10,22 @@ nav:
     - Home: index.md
     - intro/installation.md
     - intro/quick_start.md
-  - Concepts:
-    - concepts/glossary.md
-    - Basics:
-      - concepts/basics/overview.md
-      - concepts/basics/data_units.md
-      - concepts/basics/aggregation.md
-      - concepts/basics/immutability.md
-    - Workflow:
-      - concepts/workflow/phase_ingestion.md
-      - concepts/workflow/phase_transformation.md
-    # - Analysis:
-      # - concepts/receptor-level + family of functions
-      # - concepts/repertoire-level
-      # - concepts/barcode-level
-      # - concepts/biomarker_discovery
-      # - concepts/feature_engineering
-    # - Internals:
-      # - concepts/duckdb-arrow-parquet.md
-      # - concepts/extend_immunarch.md
-      # - concepts/data_engineering.md
   - User guide:
-    # - IO:
-    #   - Ingesting repertoire files: guides/ingest-repertoires.md
-    #   - Metadata merge: guides/ingest-metadata.md
+    - Schemas:
+      - guides/schemas/receptor_schema.md
+      - guides/schemas/repertoire_schema.md
+    - IO:
+      - guides/io/ingesting.md
+      - guides/io/modes.md
+    #   - Ingesting repertoire files: guides/io/ingest_repertoires.md # different formats here as well
+    #   - Using metadata: guides/ingest-metadata.md
     #   - Preprocessing and postprocessing: guides/preprocessing.md
     #   - guides/snapshots.md
     #   - guides/output.md
-    # - Transformations:
-    #   - Filter: guides/output.md
-    #   - Annotate: guides/output.md
+    - Transformations:
+      - guides/transform/filter.md
+      - guides/transform/annotate.md
+      - guides/transform/mutate.md
     # - Repertoire-level analysis:
     #   - guides/installation.md
     #   - guides/data_loading.md
@@ -50,10 +36,20 @@ nav:
     # - Biomarker discovery:
     #   - guides/features.md
     #   - guides/biomarkers.md
+    # Performance: snapshots (explain that no need to save snapshots if you just prefiltered as it's quite efficient already); pre-filter rows and select only necessary columns (basics); 
+    - Architecture:
+      - concepts/basics/overview.md
+      - concepts/basics/data_units.md
+      - concepts/basics/aggregation.md
+      # - concepts/basics/lazy.md # Execution model: immutability and lazy / materialisation
+      - concepts/basics/immutability.md
+    - Workflow:
+      - concepts/workflow/phase_ingestion.md
+      - concepts/workflow/phase_transformation.md
     - Data structure:
       - guides/data_schema.md
-      # - guides/immundata_format.md
     - guides/faq.md
+    - concepts/glossary.md
   - How-to:
     - Input:
       - Bulk AIRR-C: howto/read_airr_bulk.md
@@ -153,6 +149,7 @@ plugins:
         - locale: zh
           name: "🇨🇳 简体中文"
           build: true
+          # build: false
         - locale: ko
           name: "🇰🇷 한국어"
           build: false
