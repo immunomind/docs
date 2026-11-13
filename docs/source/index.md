@@ -41,9 +41,9 @@
 
     ---
 
-    Get set up fast and verify your environment.
+    Set up your environment - fast.
 
-    [:octicons-arrow-right-24: Start here](intro/installation.md)
+    [:octicons-arrow-right-24: Start](intro/installation.md)
 
 -   :material-lightning-bolt: **Quick start**
 
@@ -51,21 +51,23 @@
 
     Run your first analysis in 5 minutes.
 
-    [:octicons-arrow-right-24: Run it here](intro/quick_start.md)
+    [:octicons-arrow-right-24: Run](intro/quick_start.md)
 
 -   :material-school: **Tutorials**
 
     ---
 
-    Hands-on, end-to-end guides from zero to plots.
+    Hands-on, end-to-end tutorials from zero to plots.
 
     [:octicons-arrow-right-24: Explore](tutorials/single_cell.md)
 
->   :material-hammer-wrench: **How-tos**
-> 
-> Task-oriented recipes for common jobs.
-> Under construction...
+-   :material-hammer-wrench: **How-tos**
 
+    ---
+ 
+    30 second solutions to most common tasks.
+
+    [:octicons-arrow-right-24: Find](howto/io/read_airr_bulk.md)
 
 -   :fontawesome-brands-r-project: :material-dna: **API reference — immunarch**
 
