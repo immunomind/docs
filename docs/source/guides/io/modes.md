@@ -4,15 +4,16 @@
 
 Cheat-sheet for arguments to `read_repertoires`:
 
-| Situation                                         | `barcode_col` | `locus_col` | `umi_col` | `chains`         |
-| ------------------------------------------------- | ------------- | ----------- | --------- | ---------------- |
-| Bulk data, no locus filtering                     | no            | no          | no        | omit / `NULL`    |
-| Pair TRA+TRB data, analyse TRA only               | **yes**¹      | **yes**     | no        | `"TRA"`          |
-| Pair TRA+TRB data, pick best chain pair per cell  | **yes**       | **yes**     | **yes**   | `c("TRA","TRB")` |
-| Pair IGH+IGL\|IGK, pick best chain pair per cell  | **yes**       | **yes**     | **yes**   | `c("IGH","IGL\|IGK")` |
+| Situation                                                       | barcode_col | count_col | locus_col | umi_col | chains (schema$chains)     |
+|-----------------------------------------------------------------|------------:|----------:|----------:|--------:|----------------------------|
+| Simple repertoire table, no counts, no locus filtering          |      no     |    no     |    no     |   no    | omit / `NULL`              |
+| Bulk repertoire with counts, no locus filtering                 |      no     |    yes    |    no     |   no    | omit / `NULL`              |
+| Single-chain from paired TRA+TRB (analyse TRA only)¹            |      yes    |    no     |   yes     |   yes   | `"TRA"`                    |
+| Paired TRA+TRB receptor (αβ TCR, best pair per barcode)¹        |      yes    |    no     |   yes     |   yes   | `c("TRA", "TRB")`          |
+| Paired IGH + IGK/IGL (heavy–light, best pair per barcode)¹      |      yes    |    no     |   yes     |   yes   | `c("IGH", "IGK|IGL")`      |
 
-¹ If you pass barcodes, they're stored but used for counting only.
-
+¹ `TRA`, `TRB`, `IGH`, `IGK`, and `IGL` are just examples.  
+   `schema$chains` can use any locus labels present in your data (e.g. other TCR or BCR chain types), and the same rules apply.
 
 ## Chain-agnostic
 

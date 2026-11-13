@@ -1,67 +1,80 @@
 # Installation
 
-This guide installs the **analysis toolkit** `immunarch` for repertoire analysis. The **data layer** `immundata` ships with `immunarch` and loads automatically, so you do not need to install it separately for typical workflows. Advanced users will find optional `immundata` install steps at the end.
+This guide installs the toolkit `immunarch` for Adaptive Immune Receptor Repertoire (AIRR) data analysis along with its dependencies. The package  `immundata` for storing and manipulating AIRR datasets ships with `immunarch` and loads automatically, so you do not need to install it separately.
 
 ## Requirements
 
-* R ≥ 4.2 recommended
-* Internet access to install packages
+=== "R"
 
-## 1) Install `pak` (recommended installer)
+    * R ≥ 4.2 recommended
+
+## Installation
+
+### 1) Install the package installer
 
 === "R"
+
+    `pak` is the recommended installer for R packages.
 
     ```r
     install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
     ```
 
-## 2) Install `immunarch` (includes `immundata`)
+### 2) Install `immunarch`
 
-Use the GitHub build if you want the newest features.
-
-=== "R"
-
-    ```r
-    # Latest GitHub build
-    pak::pkg_install("immunomind/immunarch")
-
-    # Or install from CRAN when available
-    pak::pkg_install("immunarch")
-    ```
-
-### Verify the installation
+Install the latest release or the development version.
 
 === "R"
 
     ```r
-    library(immunarch)
-    packageVersion("immunarch")
-    # immundata is bundled; it will be available when you load immunarch
+    # Install from CRAN when available
+    pak::pak("immunarch")
     ```
 
-### Reproducible environments
+    ```r
+    # Alternatively, install the latest GitHub build if you are a power user of PC
+    pak::pak("immunomind/immunarch")
+    ```
 
-Pin an exact version (tag or SHA) for papers and CI:
+    ```r
+    # The bleeding edge version -- careful, could be unstable (but so cooler...)
+    pak::pak("immunomind/immunarch@dev")
+    ```
+
+## Reproducible environments
+
+Pin an exact version (tag or SHA) in your workflows and installation scripts for papers and CI.
 
 === "R"
 
     ```r
-    pak::pkg_install("immunomind/immunarch@v0.9.1")
+    pak::pak("immunomind/immunarch@0.9.1")
     ```
 
-## Optional: install `immundata` alone
+## Old `immunarch` versions
 
-Only needed if you want to work directly with the data layer API, build ingestion pipelines, or contribute.
+The latest pre-v1 version of `immunarch` which should work with the old code is `0.9.1`. You can install it by providing the exact tag `0.9.1`. Please mind that no guarantees on the stability or lack of bugs for this version are given due to multiple dependency packages updated since the `0.9.1` release.
 
 === "R"
 
     ```r
-    # Latest GitHub build
-    pak::pkg_install("immunomind/immundata")
-
-    # Or CRAN when available
-    pak::pkg_install("immundata")
-
-    # Pin a specific version
-    pak::pkg_install("immunomind/immundata@0.2.1")
+    pak::pak("immunomind/immunarch@0.9.1")
     ```
+
+<!-- >
+## Useful ecosystem packages
+
+The ecosystem provides several packages for convenience and expanded functionality in addition to the core `immunarch` and `immundata`.
+
+<!-- immundapter -->
+
+<!-- immunread -->
+
+## Next steps
+
+* Load and analyse your data in [quick start](./quick_start.md).
+
+* Read how to load immune repertoire of [different formats](../howto/io/read_airr_bulk.md).
+
+...
+...
