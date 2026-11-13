@@ -2,7 +2,7 @@
 
 `immundata` provides a flexible system for loading immune receptor repertoire files from different sources -- CSV, TSV and Parquet files, possibly gzipped, with some optionality. The main function for this is `read_repertoires()`. Below are four ways to pass your file paths and one for convering data from existing `immunarch pre-1.0` list objects with `$data` and `$meta`.
 
-This section is focused on different ways to work with input files. In the next [section]("modes.smd") we will talk about different data modes – how to read single-chain and paired-chain data in a desired receptor schema.
+This section is focused on different ways to work with input files. In the next [section](modes.md) we will talk about different data modes – how to read single-chain and paired-chain data in a desired receptor schema.
 
 ### Single file
 
@@ -16,8 +16,10 @@ If you just have **one** AIRR file:
     inp_file <- system.file("extdata/tsv", "sample_0_1k.tsv", package = "immundata")
     
     idata <- read_repertoires(
-        path   = inp_file,
-        schema = c("cdr3_aa", "v_call")
+        path          = inp_file,
+        schema        = c("cdr3_aa", "v_call"),
+        count_col     = "counts",
+        output_folder = tempfile("immundata-")
     )
     
     print(idata)
@@ -38,14 +40,16 @@ For **multiple** files in a vector:
     file_vec <- c(inp_file1, inp_file2)
     
     idata <- read_repertoires(
-        path   = file_vec,
-        schema = c("cdr3_aa", "v_call")
+        path          = file_vec,
+        schema        = c("cdr3_aa", "v_call"),
+        count_col     = "counts",
+        output_folder = tempfile("immundata-")
     )
     
     print(idata)
     ```
 
-`immundata` automatically merges them (depending on your chosen schema), writes the aggregated data into a single directory of Parquet files, and produces a single-cell `ImmunData` object. Think about it as a huge table instead of smaller multiple repertoire tables.
+`immundata` combines the files into one `ImmunData` object backed by Parquet storage. The receptor schema determines how receptors are identified, and `count_col` identifies the column containing their abundance.
 
 ### Glob pattern
 
@@ -58,7 +62,7 @@ If your files follow a consistent naming pattern, you can leverage shell globs:
     
     folder_with_files <- system.file("extdata/tsv", "", package = "immundata")
     
-    glob_files <- paste0(folder_with_files, "sample*.tsv")
+    glob_files <- file.path(folder_with_files, "sample*.tsv")
     
     print(glob_files)
     # The output is something like "/Library/Frameworks/.../immundata/extdata/tsv/*"
@@ -66,8 +70,10 @@ If your files follow a consistent naming pattern, you can leverage shell globs:
     
     # For example, all AIRR files in the 'samples/' folder
     idata <- read_repertoires(
-        path   = glob_files,
-        schema = c("cdr3_aa", "v_call")
+        path          = glob_files,
+        schema        = c("cdr3_aa", "v_call"),
+        count_col     = "counts",
+        output_folder = tempfile("immundata-")
     )
     
     print(idata)
@@ -75,28 +81,23 @@ If your files follow a consistent naming pattern, you can leverage shell globs:
 
 Behind the scenes, `read_repertoires()` expands the glob with `Sys.glob(...)`, merges the data, and produces a single `ImmunData`.
 
-### Metadata table
+### Manifest table
 
-Sometimes you need more control over the data source (e.g. consistent sample naming, extra columns). In that case:
-
-1.  **Load metadata** with `read_metadata()`.
-
-2.  **Pass** the resulting data frame to `read_repertoires(path = "<metadata>", ..., metadata = md_table)`. Mind the `"<metadata>"` string we pass to the function. It indicates that we should take file paths from the input metadata table.
-
-An example code:
+A manifest table contains links to repertoire files with sample-level information such as donor, tissue or treatment. By default, the manifest has a `file` column containing repertoire file paths.
 
 === "R"
 
     ```r
     library(immundata)
-    
-    md_path <- system.file("extdata/tsv", "metadata.tsv", package = "immundata")
-    
-    md_table <- read_metadata(md_path)
-    
-    print(md_table)
+
+    manifest_path <- system.file(
+        "extdata/tsv", "manifest.csv", package = "immundata"
+    )
+    manifest <- read_manifest(manifest_path)
+
+    print(manifest)
     ```
-    
+
     ```
     # The column "File" stores the file paths. If you have a different column name
     # for files, use the `metadata_file_col = "<your column name>"` argument.
@@ -106,22 +107,22 @@ An example code:
     1 /.../immundata-/inst/extd… ICI     FR       S1_    /Users/…
     2 /.../immundata-/inst/extd… CAR-T   PR       S2_    /Users/…
     ```
-    
+
     ```r
     idata <- read_repertoires(
-        path     = "<metadata>",
-        metadata = md_table,
-        schema   = c("cdr3_aa", "v_call")
+        path          = "<manifest>",
+        manifest      = manifest,
+        schema        = c("cdr3_aa", "v_call"),
+        count_col     = "counts",
+        output_folder = tempfile("immundata-manifest-")
     )
-    
+
     print(idata)
     ```
 
-This approach **unifies** sample-level metadata (e.g. donor ID, timepoint) with your repertoire data inside a single `ImmunData`.
+`path = "<manifest>"` tells `read_repertoires()` to use the paths in the manifest. If the path column has a different name, pass it to both functions: for example, `read_manifest(manifest_path, file_col = "path")` and `read_repertoires(..., manifest_file_col = "path")`.
 
-You can pass the metadata table separately along with the list of files as we did in the previous examples without the `<metadata>` directive, but in that case you would need to check the correctness of all filepaths by yourself. Which could be quite cumbersome, to say the least.
-
-The more information on how to work with metadata files, please read the next section.
+`read_repertoires()` writes persistent backing files to `output_folder`. If it is omitted, the folder is created beside the first input file. Please mind that reusing an output folder replaces its existing `annotations.parquet` and `metadata.json`. Use a new folder for a separate dataset.
 
 ### Convert from `immunarch` format
 

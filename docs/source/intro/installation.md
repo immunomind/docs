@@ -37,7 +37,7 @@ Install the latest release or the development version.
     ```
 
     ```r
-    # The bleeding edge version -- careful, could be unstable (but so cooler...)
+    # The bleeding edge version -- careful, could be unstable (but there are so many new, fresh features...)
     pak::pak("immunomind/immunarch@dev")
     ```
 
@@ -53,7 +53,8 @@ Pin an exact version (tag or SHA) in your workflows and installation scripts for
 
 ## Old `immunarch` versions
 
-The latest pre-v1 version of `immunarch` which should work with the old code is `0.9.1`. You can install it by providing the exact tag `0.9.1`. Please mind that no guarantees on the stability or lack of bugs for this version are given due to multiple dependency packages updated since the `0.9.1` release.
+In this documentation, **pre-v1** refers to `immunarch` versions `0.9.1` and earlier. **v1** refers to versions `0.10` and later, including `0.10`, which was a development release leading up to `1.0` in the future.
+
 
 === "R"
 

@@ -5,20 +5,28 @@ All specific function details and arguments are available on the corresponding w
 
 <div class="grid cards" markdown>
 
--   :fontawesome-brands-r-project: :material-dna: **immunarch**
+-   :material-math-compass: **immunarch**
 
     ---
 
     Multi-modal immune repertoire analytics.
 
-    [:octicons-arrow-right-24: API reference](https://immunomind.github.io/immunarch/reference)
+    [:octicons-arrow-right-24: API reference (:fontawesome-brands-r-project:)](https://immunomind.github.io/immunarch/reference)
 
--   :fontawesome-brands-r-project: :material-butterfly: **immundata**
+-   :material-butterfly: **immundata**
 
     ---
 
     Unified data layer for immune repertoires.
 
-    [:octicons-arrow-right-24: API reference](https://immunomind.github.io/immundata/reference)
+    [:octicons-arrow-right-24: API reference (:fontawesome-brands-r-project:)](https://immunomind.github.io/immundata/reference)
+
+-   :material-script-text: **immunread**
+
+    ---
+
+    Streamlined reading of common data formats.
+
+    [:octicons-arrow-right-24: API reference (:fontawesome-brands-r-project:)](https://immunomind.github.io/immunread/)
 
 </div>

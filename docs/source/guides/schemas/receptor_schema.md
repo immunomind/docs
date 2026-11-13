@@ -23,8 +23,10 @@ Used for bulk or pre-filtered immune repertoire data. No filtering by chain data
     schema <- c("cdr3_aa", "v_call")
         
     idata <- read_repertoires(
-        path   = inp_file,
-        schema = schema
+        path          = inp_file,
+        schema        = schema,
+        count_col     = "counts",
+        output_folder = tempfile("immundata-bulk-")
     )
         
     print(idata)
@@ -47,10 +49,12 @@ Used for paired-chain data such as single-cell data to focus on the analysis of 
     )
 
     idata <- read_repertoires(
-        path        = inp_file,
-        schema      = schema,
-        barcode_col = "barcode",
-        locus_col   = "locus"
+        path          = inp_file,
+        schema        = schema,
+        barcode_col   = "barcode",
+        locus_col     = "locus",
+        umi_col       = "umis",
+        output_folder = tempfile("immundata-single-chain-")
     )
 
     print(idata)
@@ -73,11 +77,12 @@ When you want full αβ (or heavy‑light) receptors, `immundata` can pair two c
     )
 
     idata <- read_repertoires(
-        path        = inp_file,
-        schema      = schema,
-        barcode_col = "barcode",
-        locus_col   = "locus",
-        umi_col     = "umis"
+        path          = inp_file,
+        schema        = schema,
+        barcode_col   = "barcode",
+        locus_col     = "locus",
+        umi_col       = "umis",
+        output_folder = tempfile("immundata-paired-chain-")
     )
 
     print(idata)
@@ -85,26 +90,29 @@ When you want full αβ (or heavy‑light) receptors, `immundata` can pair two c
 
 ## Paired-chain – multiple second loci
 
-Ig repertoire analysis requires a specific processing paired-chain data: `IGH` chains can be paired with either `IGK` or `IGL` chains. To handle this scenario, you can provide both chains using special syntax.
+Ig repertoire analysis requires a specific processing paired-chain data: `IGH` chains can be paired with either `IGK` or `IGL` chains. To handle this scenario, you can provide both chains using special syntax. A cell is retained when it has an IGH chain and exactly one of the two light-chain loci. Cells with both IGK and IGL loci are excluded.
 
 === "R"
 
     ```r
     library(immundata)
 
-    inp_file <- system.file("extdata/single_cell", "lt6.csv.gz", package = "immundata")
+    inp_file <- system.file(
+        "extdata/ig", "multiple_ig_loci.tsv.gz", package = "immundata"
+    )
 
     schema <- make_receptor_schema(
-        features = c("cdr3", "v_call"),
+        features = c("junction_aa", "v_call"),
         chains   = c("IGH", "IGK|IGL")
     )
 
     idata <- read_repertoires(
-        path        = inp_file,
-        schema      = schema,
-        barcode_col = "barcode",
-        locus_col   = "locus",
-        umi_col     = "umis"
+        path          = inp_file,
+        schema        = schema,
+        barcode_col   = "cell_id",
+        locus_col     = "locus",
+        umi_col       = "duplicate_count",
+        output_folder = tempfile("immundata-ig-paired-")
     )
 
     print(idata)

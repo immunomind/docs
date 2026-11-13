@@ -4,7 +4,7 @@ A five‑minute tour of `immunarch`: ingest the AIRR data, compute statistics, a
 
 ## 1) Load the package
 
-All analyses start the same regardless of the workflow or even a language...
+Happy analyses are all alike. They all begin with...
 
 === "R"
 
@@ -34,7 +34,7 @@ And be happy (hopefully).
 
     ```r
     # Gene usage (e.g., V gene)
-    airr_stats_genes(idata, gene_col = "v_call") |> vis()
+    airr_desc_genes(idata, gene_col = "v_call") |> vis()
 
     # Publicity / overlap
     repsim_bray(idata) |> vis()
@@ -71,18 +71,18 @@ For the learning purposes, please see the example on how to load immune repertoi
 === "R"
 
     ```r
-    # Read AIRR TSVs (toy example)
-    md_path <- system.file("extdata/tsv", "metadata.tsv", package = "immundata")
-    files <- c(
-        system.file("extdata/tsv", "sample_0_1k.tsv", package = "immundata"),
-        system.file("extdata/tsv", "sample_1k_2k.tsv", package = "immundata")
+    # Read the bundled manifest and AIRR TSVs
+    manifest_path <- system.file(
+        "extdata/tsv", "manifest.csv", package = "immundata"
     )
+    manifest <- read_manifest(manifest_path)
 
-    md <- read_manifest(md_path)
     idata <- read_repertoires(
-    path     = files,
-    schema   = c("cdr3_aa", "v_call"),
-    manifest = md
+        path          = "<manifest>",
+        schema        = c("cdr3_aa", "v_call"),
+        manifest      = manifest,
+        count_col     = "counts",
+        output_folder = tempfile("immundata-quick-start-")
     )
 
     # Continue with immunarch analyses

@@ -10,24 +10,33 @@ Run this code before running examples below:
 
     ```r
     library(immundata)
-        
-    inp_files <- paste0(system.file("extdata/single_cell", "", package = "immundata"), "/*.csv.gz")
-    md_file <- system.file("extdata/single_cell", "metadata.tsv", package = "immundata")
-    md_table <- read_metadata(md_file)
-    cells_file <- system.file("extdata/single_cell", "cells.tsv.gz", package = "immundata")
+
+    manifest_path <- system.file(
+        "extdata/single_cell", "manifest.csv", package = "immundata"
+    )
+    manifest <- read_manifest(manifest_path)
+
+    cells_file <- system.file(
+        "extdata/single_cell", "cells.tsv.gz", package = "immundata"
+    )
     cells <- readr::read_tsv(cells_file)
 
-    schema <- make_receptor_schema(features = c("cdr3", "v_call"), chains = c("TRB"))
+    schema <- make_receptor_schema(
+        features = c("cdr3", "v_call"),
+        chains = "TRB"
+    )
 
     idata <- read_repertoires(
-        path              = inp_files, 
-        schema            = schema, 
-        metadata.         = md_table, 
-        barcode_col       = "barcode", 
-        locus_col         = "locus", 
-        umi_col           = "umis", 
-        preprocess        = make_default_preprocessing("10x"), 
-        repertoire_schema = "Tissue")
+        path              = "<manifest>",
+        manifest          = manifest,
+        schema            = schema,
+        barcode_col       = "barcode",
+        locus_col         = "locus",
+        umi_col           = "umis",
+        preprocess        = make_default_preprocessing("10x"),
+        repertoire_schema = "Tissue",
+        output_folder     = tempfile("immundata-transform-")
+    )
     ```
 
 ### Filter by any annotation
@@ -45,12 +54,15 @@ Run this code before running examples below:
 === "R"
 
     ```r
-    # this expression:
-    idata |> filter(v_call == "TRBV2", imd_proportion >= 0.0002)
-    
-    # is the same as this one:
-    idata |> filter(v_call == "TRBV2") |> filter(imd_proportion >= 0.0002)
+    # These two forms apply the same conditions:
+    idata |> filter(v_call == "TRBV2", Tissue == "Blood")
+
+    idata |>
+        filter(v_call == "TRBV2") |>
+        filter(Tissue == "Blood")
     ```
+
+Filtering recalculates repertoire summaries by default. Chaining filters can therefore produce different results when a later condition uses a recalculated value such as `imd_proportion`.
     
 ### Filter by sequence distance
 
@@ -87,3 +99,4 @@ Run this code before running examples below:
     idata |> filter(imd_repertoire_id == 1)
     
     idata |> filter(Tissue %in% c("Blood", "Tumor"))
+    ```
