@@ -42,7 +42,9 @@ jobs:
             any::ggsci
             github::immunomind/immundata@dev
             github::immunomind/immunarch@dev
-          cache-version: ${{ github.run_number }}
+          cache: always
+          # Bump this number to force a fresh package installation.
+          cache-version: 1
           
       - name: Point reticulate at CI Python
         run: echo "RETICULATE_PYTHON=$(python -c 'import sys; print(sys.executable)')" >> $GITHUB_ENV
