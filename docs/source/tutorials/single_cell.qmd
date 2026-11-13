@@ -33,7 +33,7 @@ vignette: >
 - **Running time:** the whole end-to-end pipeline runs in 30 sec
 
 
-> [WARNING] This tutorial is still in progress. Some things could break. Open an issue at [Github Issue](https://github.com/immunomind/immunarch/issues) is something doesn't work.
+> [WARNING] This tutorial is still in progress, so some things may not work as expected. Please open an issue at [Github Issue](https://github.com/immunomind/immunarch/issues) if you encounter a bug.
 
 ## Introduction
 
@@ -55,11 +55,11 @@ It starts from the basics and builds up to more advanced analyses, so it can ser
 We will work with data for *patient 6* from the study *“Peripheral T cell expansion predicts tumour infiltration and clinical response”* 
 (Wu *et al.*; *Nature* 579:274–278, 2020). The dataset includes three compartments per patient: 
 *tumour*, *peripheral blood*, and *normal adjacent tissue (NAT)*. We will demonstrate a typical single‑cell AIRR workflow 
-across these three samples. Bulletpoint description of this great study:
+across these three samples. Here are the main findings of the study:
 
 * Deep single‑cell RNA/TCR profiling across tumour, NAT, and blood
 * Clonotypic expansion of effector‑like T cells in and around tumours
-* Ppatients with stronger peripheral expansion signatures tend to respond better to anti‑PD‑(L)1 therapy
+* Patients with stronger peripheral expansion signatures tend to respond better to anti‑PD‑(L)1 therapy
 * Expanded intratumoural clonotypes are often detectable in blood, enabling convenient monitoring
 
 **References & data access:**
@@ -95,7 +95,7 @@ across these three samples. Bulletpoint description of this great study:
     #| eval: false
     install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
     
-    # Please mind that we will use the development version of packages here because publishing it on CRAN takes time
+    # We use development versions of the packages here because CRAN releases take time.
     pak::pak("immunomind/immundata@dev")
     pak::pak("immunomind/immunarch@dev")
     pak::pak("Seurat")
@@ -116,7 +116,7 @@ across these three samples. Bulletpoint description of this great study:
     ```
 
 
-### Load necessary packages and setup
+### Load packages and set up the environment
 
 === "R"
 
@@ -146,11 +146,11 @@ across these three samples. Bulletpoint description of this great study:
 
 ## Typical workflow: from files to analysis
 
-Analyzing single-cell AIRR data with `immunarch` powered by `immundata` follows a clear, reproducible workflow that strictly separates data ingestion from downstream transformation and annotation.
-Sounds scary, but in reality it is a rather straightforward approach: load and preprocess the data first, and analyse it second - instead of having them mixed in an arbitrary order.
-This design enables you to process and re-analyse large datasets efficiently without manual reloading or reprocessing the text files with immune receptors over and over again.
+Analysing single-cell AIRR data with `immunarch` and `immundata` follows a reproducible workflow that separates data ingestion from downstream transformation and annotation.
+Sounds scary, but in reality it is a rather straightforward approach: load and preprocess the data first, and analyse it second - instead of having steps mixed in an arbitrary order.
+This separation lets you reanalyse large datasets without repeatedly reading and preprocessing the original receptor files.
 
-The general workflow is split to two phases:
+The workflow is divided into two phases.
 
 1. **Ingestion phase**
 
@@ -158,7 +158,7 @@ The general workflow is split to two phases:
    * Define receptors using a schema (e.g., single or paired chains, custom features)
    * Optionally define a repertoire schema (to compare repertoire-level statistics such as diversity)
    * Load AIRR-seq files from disk
-   * Process the loaded data from files, and store the dataset as an immutable on-disk `ImmunData` object
+   * Process the input files and store the dataset as an immutable, on-disk `ImmunData` object.
 
 2. **Transformation phase**
 
@@ -194,7 +194,7 @@ Error: Materialization is disabled, use collect() or as_tibble() to materialize.
   ```
 * For large datasets (e.g., a fully filtered `ImmunData` object), avoid materializing unless you're sure you need all data in memory — this could use significant RAM and slow down your workflow.
 
-You can read more about the materialization in [Concepts → Immutability](https://immunomind.github.io/docs/concepts/immutability/).
+You can read more about materialization in [Concepts → Immutability](https://immunomind.github.io/docs/concepts/immutability/).
 
 ---
 
@@ -231,7 +231,7 @@ Next, get the file paths to the V(D)J data packaged with `immundata`:
     inp_files
     ```
 
-What is a "receptor" from the data analysis perspective? A receptor is the central unit of data analysis. It is defined by:
+What is a “receptor” from a data analysis perspective? A receptor is the central unit of analysis and is defined by:
 
 * The features used for grouping (e.g., `cdr3`, `v_call`, `j_call`)
 * The chains involved (e.g., `TRB` for TCR beta, or paired `TRA`+`TRB`)
@@ -266,7 +266,7 @@ If you want to use other receptor definitions, you can create and pass custom sc
     schema <- make_receptor_schema(features = c("cdr3"), chains = c("TRA"))
     schema
     
-    # The most strict receptor definition
+    # The strictest receptor definition
     schema <- make_receptor_schema(features = c("cdr3", "v_call", "j_call"), chains = c("TRA", "TRB"))
     schema
     ```
@@ -310,12 +310,12 @@ Here's how to use it on the packaged single-cell demo dataset:
     ```
 
 
-The result, `idata`, is an ImmunData object -- a columnar, on-disk structure similar in spirit to Seurat or AnnData, but specifically optimized for immune repertoire analysis. You can query, annotate, or regroup it on the fly, and it remains memory efficient, and is designed to have fully reproducible workflows.
+The result, `idata`, is an ImmunData object: a columnar, on-disk structure optimised for immune repertoire analysis. You can query, annotate and regroup it while working efficiently with data that may not fit in memory.
 
 ### Load scRNAseq data
 
 If you're working with single-cell transcriptomics, you'll usually want to bring in cluster annotations or cell type labels. This can be done with a simple TSV table, or directly from a Seurat/AnnData object.
-Let's load pre-packaged data to annotate our immune receptors with it:
+Let’s load the bundled cell annotations and use them to annotate our immune receptors:
 
 === "R"
 
@@ -365,7 +365,7 @@ To visualize gene expression and link it with immune repertoires, load the expre
 The `read_repertoires()` function is flexible and supports many repertoire data types and formats. Here are practical patterns for different scenarios. Use these examples as templates to adapt to your own data sources and formats.
 
 > **Note:** These code blocks are for demonstration and not intended to run as part of this tutorial.
-> Please mind the "Tissue": this column *must* be present in your data in order to create repertoires by it.
+> The "Tissue" column must be present in your data if you want to define repertoires by tissue.
 
 #### 1. Bulk sequencing
 
@@ -496,7 +496,7 @@ A well-designed immune repertoire analysis always starts with a set of basic des
 * Spot technical artifacts (e.g., biased V gene usage, length skews)
 * Summarize diversity and composition for downstream biological or clinical questions
 
-The `immunarch` package provide a family of functions, `airr_desc_*`, to quickly compute these statistics from your `ImmunData` object.
+The `immunarch` package provides a family of functions, `airr_desc_*`, to quickly compute these statistics from your `ImmunData` object.
 To see all options or details, run `?airr_desc` in your R console.
 
 Currently there are three functions to compute key statistics:
@@ -519,7 +519,7 @@ Let's start by quantifying two basic properties:
  
  * Number of unique receptors per sample (reflects immune diversity)
 
-These metrics are often used as a first-line QC and as a way to detect outliers or sample-specific technical effects. Large differences in barcode count may indicate sample quality or biological differences (e.g., tumour-infiltrating T cell abundance, malignant cells). Receptor count per sample gives a sense of diversity captured and can flag technical dropouts or high expansion. The less (unique) receptors there are, the more convergent the immune repertoire is, and it is important to figure out the factors affecting the convergence.
+These metrics are often used as a first-line QC and as a way to detect outliers or sample-specific technical effects. Large differences in barcode count may indicate sample quality or biological differences (e.g., tumour-infiltrating T cell abundance, malignant cells). Receptor count per sample gives a sense of diversity captured and can flag technical dropouts or high expansion. Fewer unique receptors relative to the number of cells can indicate greater clonal expansion. It is useful to investigate the biological and technical factors behind this pattern.
 
 === "R"
 
@@ -534,9 +534,9 @@ These metrics are often used as a first-line QC and as a way to detect outliers 
     idata_stats |> vis()
     ```
 
-Please take a look at the axes. In essence, this is a way to visualise two barplots at the same time — one for the number of unique receptors, and the other one for number of barcodes / chains. The dashed lines help you see more clearly the ratio between receptors and chains. Repertoires on the `100%` line signify that there are one receptor per one chain, meaning the most diverse repertoire as it can possible be for the given cell capture limit. Repertoires on the `50%` line have 2 chains per unique receptor on average.
+The plot shows the number of unique receptors against the number of barcodes. The dashed lines indicate the ratio between them. Repertoires on the 100% line have one unique receptor per barcode. Those on the 50% line have, on average, two barcodes per unique receptor.
 
-Despite that, the plot doesn't look very helpful as we can see only the aggregated repertoires. To specify per-cell-cluster statistics, first define what a repertoire is.
+This plot shows one aggregated repertoire per tissue. To examine statistics for individual cell clusters, we first need to redefine the repertoires.
 
 #### 1b. Number of receptors and barcodes for cell clusters
 
@@ -579,8 +579,8 @@ To break down repertoire statistics by cluster, we'll annotate immune receptors 
 
 Now is a good time to save a snapshot. You've run several heavy steps and defined your working dataset: tissue annotations, cluster labels, and more. A snapshot freezes this state for reproducibility. Learn why in the [Concepts → Immutability](https://immunomind.github.io/docs/concepts/basics/immutability/).
 
-You can create snapshot via `write_immundata` function that will save the data on disk, and then
-load the snapshot so you can work with the newly created data.
+Use `write_immundata()` to save a snapshot to disk.
+You can then load it to continue working with the saved dataset.
 
 === "R"
 
@@ -660,7 +660,7 @@ One of the most informative immune repertoire features is V(D)J gene segment usa
 
 #### 2b. Most overrepresented V gene segments
 
-As you can see, the broad overview is not very straightforward to understand. We can focus on most strong "signals" from the data: which V genes are most used across all samples and repertoires? This can help spot outlier samples, overall biases, or dominant clonotypes.
+The full overview can be difficult to interpret. Let’s focus on the strongest signals: which V genes are most common across samples and repertoires? This can help reveal outlier samples or overall biases.
 
 === "R"
   
@@ -697,7 +697,7 @@ As you can see, the broad overview is not very straightforward to understand. We
 
 #### 2c. Cluster-specific V gene distribution
 
-We can do pretty much the same if there are specific clusters we are interested in specifically:
+We can use the same approach to focus on specific clusters of interest:
 
 === "R"
   
@@ -814,9 +814,9 @@ Currently there are three ways to summarize clonality:
   Shows how much space is occupied by hyperexpanded, large, or rare clones.
 3. **`airr_clonality_rank`**
   *Clonal space partitions by rank*
-  Shows how much space is occupied by receptors from different bins: top-10 most abundance, top-100 most abundant, etc.
+  Shows how much space is occupied by receptors from different bins: the 10 most abundant receptors, the 100 most abundant receptors, etc.
   
-> **Note:** These functions are repertoire-level statistics. For annotating `ImmunData` with the per-receptor information of clonality, e.g., which receptors are hyperexpanded, to visualize them later on UMAP, use the receptor-level function family `annotate_clonality`. We will discuss them in the sections below.
+> **Note:** These functions calculate repertoire-level statistics. To label individual receptors by clonality, e.g., to highlight hyperexpanded receptors on a UMAP, use the `annotate_clonality_*()` functions. We’ll return to these in the sections below.
 
 #### 1. Rank abundance
 
@@ -854,7 +854,7 @@ Sometimes, you want to summarize clonal expansion in a single barplot splitting 
 * “Large”: ≥0.1%, etc.
 * “Rare”: all the way down to singletons
 
-This lets you instantly compare, for example, how “oligoclonal” each tissue or cluster is. In other words, this helps you explore how much “hyperexpanded” is.
+This lets you compare how much of each tissue or cluster is occupied by hyperexpanded, large, small and rare clones.
 
 === "R"
 
@@ -930,7 +930,7 @@ Diversity is the flip side of clonality:
 
 In practical terms:
 
-* **High diversity** = many unique, somehow similarly sized clones. Typical of healthy, naive, or unperturbed immunity.
+* **High diversity** = many unique clones with relatively similar abundances. Typical of healthy, naive, or unperturbed immunity.
 * **Low diversity** = few clones dominate (high clonality). Often seen in strong immune responses, cancer, infection, or technical issues.
 
 `immunarch` provides multiple diversity estimators, each with its own interpretation. To see all options or details, run `?airr_diversity` in your R console. Supported methods are:
@@ -941,7 +941,7 @@ In practical terms:
    Small D50 = a few clones dominate (low diversity); large D50 = highly polyclonal.
    
 1. **`airr_diversity_chao1()`**
-   *A nonparameteric asymptotic estimator* of species richness (number of species in a population).
+   *A nonparametric asymptotic estimator* of species richness (number of species in a population).
    One of the most used methods for estimating immune repertoire diversity.
 
 2. **`airr_diversity_shannon()`**
@@ -1089,9 +1089,9 @@ persists. Equal cell counts do not correct differences in cell capture or
 replace independent biological replicates. We will continue the receptor-selection
 examples with `idata_tissue` in the section after the next one.
 
-> Now can compute statistics which describe immune repertoires and compare them. But are there
-another ways to estimate how immune repertoire are "close", similar to each other? The next section
-will help us calculate the level of similarity using the immune receptor features.
+> We can now calculate statistics for individual repertoires.
+> But how similar are the repertoires to one another?
+> In the next section, we’ll compare them using their receptor features.
 
 ---
 
@@ -1100,11 +1100,11 @@ will help us calculate the level of similarity using the immune receptor feature
 In immunology, public receptors are TCRs or BCRs that appear in multiple individuals or samples, suggesting convergent responses to shared antigens, or technical “publicity” due to biases.
 Measuring the overlap between repertoires helps you:
 
-* Check if there is a signal in data in the form of “public” immune receptors
+* Check for a signal of shared, or “public,” immune receptors.
 * QC for sample swap, cross-contamination, or replicate similarity
 * Compare cohort similarity or donor-sharing at scale
 
-`immunarch` provides the following functions tools for quantifying this:
+`immunarch` provides the following functions for quantifying this:
 
 * **`repsim_intersection()`**
   *Intersection: how many receptor identities were observed in both tissues?*
@@ -1116,7 +1116,7 @@ Measuring the overlap between repertoires helps you:
   
 * **`repsim_chao_jaccard()`**
   *Chao-Jaccard similarity: how similar are the repertoires after estimating the contribution of shared receptors missed through limited sampling?*
-  Allows us to calculate similarity with 
+  Accounts for the sampling randomness.
   
 * **`repsim_morisita_horn()`**
   *Morisita-Horn similarity: do the same receptors account for much of the cell abundance in both tissues?*
@@ -1173,13 +1173,13 @@ blood and tumour. Each point in this plot is a shared receptor identity.
     vis(idata_tissue, x = "Blood", y = "Tumor", lm = FALSE)
     ```
 
-> We found that there are some overlapped receptors. But what are those public receptors? And can we work with them? The next section will help us extract them from the data, analyse, and visualise.
+> We found receptors shared between repertoires. Which receptors are they, and how can we investigate them? In the next section, we’ll extract, analyse and visualise them.
 
 ---
 
 ## Discover and annotate immune receptors
 
-> This section was composed rather quickly to cover a highly-requested feature. More polished version will be available on the next release.
+> This section was written quickly to cover a frequently requested feature. A more polished version will be available in a future release.
 
 ### Track expanded tumour receptors across tissues
 
@@ -1672,7 +1672,7 @@ No spoilers. :-)
 
 ## Appendix A: Function naming schema
 
-`immunarch` follows a specific naming schema to distinguish between output types of the different functions and clearly split the functions to different domains of AIRR data analysis. In other words, just by looking at the function name, you can infer two things:
+`immunarch` follows a specific naming scheme to distinguish between output types of the different functions and clearly split the functions to different domains of AIRR data analysis. In other words, just by looking at the function name, you can infer two things:
 
 - what to expect as an output from this function
 
@@ -1684,7 +1684,7 @@ Exploratory data analysis functions:
 
 - `airr_*` functions work on the repertoire-level (hence "AIRR") and compute per-repertoire descriptive statistics. They return repertoire-level statistics — a table with per-repertoire computed statistics and joined metadata for the downstream analysis and visualisation convenience.
 
-- `annotate_*` functions work on the receptor-level and return original `ImmunData`s with new columns. Because `ImmunData` is immutable data structure, you always get a new `ImmunData` with additional annotation columns added, but with the same receptor structure and counts.
+- `annotate_*` functions work on the receptor-level and return the input `ImmunData`s but with new columns added. Because `ImmunData` is immutable data structure, strictly speaking, you always get a new `ImmunData` with additional annotation columns added, but with the same receptor structure and counts, but you can think that this is the very same object you passed to the function as an input.
 
 - `repsim_*` functions work on the inter-repertoire level and return similarity or distance matrices depending on the method used. E.g., a matrix with pairwise Jaccard similarities.
 
@@ -1699,7 +1699,7 @@ Exploratory data analysis functions:
 > I provide functions in this way to minimize the amount of scope names to remember. There are
 > almost 10 diversity metrics alone, and remembering all of this could be quite
 cumbersome. Instead, a user can always press
-> "tab" to autocomplete function names from `airr_diversty_*`.
+> "tab" to autocomplete function names from `airr_diversity_*`.
 > In Python, the reasoning is different.
 > Due to the modular structure of packages, it is easier to split the scope into different
 > domains, e.g., `immunarch.clonality` or `immunarch.public`, so the necessary scopes
