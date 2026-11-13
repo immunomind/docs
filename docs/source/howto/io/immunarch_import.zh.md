@@ -28,7 +28,7 @@
     # 2）转换为 ImmunData（以 Parquet 为后端），必要时自定义受体键
     idata <- from_immunarch(
       imm           = immdata,
-      schema        = c("CDR3.aa", "V.name"),    
+      schema        = c("CDR3.aa", "V.name"),
       output_folder = "/path/to/immundata_out"
     )
 
@@ -55,15 +55,15 @@
         "Gene"      = "locus",
         "Productive"= "productive"
       )
-      
+
       present_old <- intersect(names(df), names(map))
       if (!length(present_old)) return(df)
-      
+
       new_names <- unname(map[present_old])
       keep <- !duplicated(new_names)
       present_old <- present_old[keep]
       new_names    <- new_names[keep]
-      
+
       spec <- stats::setNames(rlang::syms(present_old), new_names)
       dplyr::rename(df, !!!spec)
     }

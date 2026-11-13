@@ -6,11 +6,11 @@ repo_name: immunomind/immunarch
 docs_dir: docs/source
 
 nav:
-  - Getting started:
-    - Home: index.md
-    - intro/installation.md
-    - intro/quick_start.md
-  - User guide:
+  - Guide:
+    - Getting started:
+      - Home: index.md
+      - intro/installation.md
+      - intro/quick_start.md
     - Schemas:
       - guides/schemas/receptor_schema.md
       - guides/schemas/repertoire_schema.md
@@ -22,10 +22,15 @@ nav:
     #   - Preprocessing and postprocessing: guides/preprocessing.md
     #   - guides/snapshots.md
     #   - guides/output.md
+    #   - print?
     - Transformations:
+      # https://chatgpt.com/g/g-p-68a5f67c43748191a98128585490a21e/c/68faa5c7-56a8-8332-b7df-1cff686fef1f?src=history_search&messageId=01350097-6d07-4b13-88dd-d61aca79be70&historySearchQuery=immutability
       - guides/transform/filter.md
       - guides/transform/annotate.md
       - guides/transform/mutate.md
+      # - guides/transform/select.md
+      # - guides/transform/count.md
+      # - guides/transform/collect.md
     # - Repertoire-level analysis:
     #   - guides/installation.md
     #   - guides/data_loading.md
@@ -52,11 +57,18 @@ nav:
     - concepts/glossary.md
   - How-to:
     - Input:
-      - Bulk AIRR-C: howto/read_airr_bulk.md
-      - Single-cell AIRR-C: howto/read_airr_sc.md
-      # - 10x Genomics, single-chain: howto/read_10x_single.md
-      # - 10x Genomics, paired-chain: howto/read_10x_paired.md
-      - Import old `immunarch` data: howto/immunarch_import.md
+      - Bulk AIRR-C: howto/io/read_airr_bulk.md
+      - Single-cell AIRR-C: howto/io/read_airr_sc.md
+      - 10x Genomics: howto/io/read_10_single.md
+      - BD Rhapsody: howto/io/read_bd.md
+      - MiXCR: howto/io/read_mixcr_sc.md
+      - Immcantation: howto/io/read_immcantation.md
+      - Dandelion: howto/io/read_dandelion.md
+      - Parse Biosciences: howto/io/read_parsebio.md
+      - TRUST4: howto/io/read_trust4.md
+      - WAT3R: howto/io/read_wat3r.md
+      - Adaptive immunoSEQ: howto/io/read_adaptive.md
+      - Import old `immunarch` data: howto/io/immunarch_import.md
     #
     # URGENT NOW
     #
@@ -67,21 +79,28 @@ nav:
     # NEXT STEP
     #
     #   - howto/read_mixcr_bulk.md
-    #   - howto/read_mixcr_sc.md
-    #   - howto/read_bd.md
-    #   - howto/read_dandelion.md
-    #   - howto/read_immcantation.md
-    #   - howto/read_parsebio.md
-    #   - howto/read_trust4.md
-    #   - howto/read_wat3r.md
+    #   - howto/io/read_mixcr_sc.md
+    #   - howto/io/read_bd.md
+    #   - howto/io/read_dandelion.md
+    #   - howto/io/read_immcantation.md
+    #   - howto/io/read_parsebio.md
+    #   - howto/io/read_trust4.md
+    #   - howto/io/read_wat3r.md
     # - Analysis:
       # - howto/big_receptors.qmd
+      # - howto/clustering.qmd
+      # - howto/distance.qmd
+    # - Adapters:
+    #   - ...
     - Performance:
       # - howto/snapshots.qmd
       - howto/no_threads.md
   - Tutorials:
-      - tutorials/single_cell.qmd
-      - tutorials/migration.md
+      - Single-cell TCR analysis: tutorials/single_cell.qmd
+      - Immunarch migration v0.9→v1.0: tutorials/migration.md
+      # Longitudinal Ig SHM analysis: tutorials/shm.qmd
+      # Ig lineage inference: tutorials/lineage.qmd
+      # Large-scale Ig data benchmark: tutorials/ig_benchmark.qmd
   - API reference:
       - api/reference.md
   # - Support:
