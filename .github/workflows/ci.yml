@@ -35,6 +35,7 @@ jobs:
         with:
           upgrade: 'TRUE' 
           packages: |
+            any::reticulate
             any::Seurat
             any::BiocFileCache
             any::ggplot2
