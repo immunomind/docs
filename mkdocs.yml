@@ -150,6 +150,8 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - tables
+  - toc:
+      toc_depth: "2-3"
 
 plugins:
   - mkquartodocs
