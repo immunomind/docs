@@ -29,4 +29,12 @@ All specific function details and arguments are available on the corresponding w
 
     [:octicons-arrow-right-24: API reference (:fontawesome-brands-r-project:)](https://immunomind.github.io/immunread/)
 
+-   :material-power-plug: **immundapter**
+
+    ---
+
+    Run external immune repertoire tools from R.
+
+    [:octicons-arrow-right-24: API reference (:fontawesome-brands-r-project:)](https://immunomind.github.io/immundapter/)
+
 </div>
