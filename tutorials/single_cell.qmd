@@ -1,0 +1,1797 @@
+---
+title: "Comprehensive analysis of single-cell immune repertoire data using `immunarch` and `immundata`"
+author: "Vadim I. Nazarov"
+date: "`r Sys.Date()`"
+execute: 
+  cache: false
+format: 
+  html:
+    code-overflow: wrap
+    code-block-bg: true
+    code-block-border-left: "#31BAE9"
+    highlight-style: github
+    code-line-numbers: false
+    code-copy: true
+    toc: true
+    number-sections: true
+vignette: >
+  %\VignetteIndexEntry{Comprehensive analysis of single-cell immune repertoire data}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Comprehensive analysis of single-cell immune repertoire data using `immunarch` and `immundata`
+
+## Overview
+
+- **Topic:** ...
+
+- **Dataset:** Single-cell single- and paired-chain TCR sequencing data
+
+- **Size:**: N receptors, M cells
+
+- **Running time:** the whole end-to-end pipeline runs in 30 sec
+
+
+> [WARNING] This tutorial is still in progress, so some things may not work as expected. Please open an issue at [Github Issue](https://github.com/immunomind/immunarch/issues) if you encounter a bug.
+
+## Introduction
+
+This vignette is a practical, end‑to‑end guide to analyzing single‑chain and paired‑chain Adaptive Immune Receptor Repertoire (AIRR) data derived from single‑cell assays (scRNA‑seq with VDJ, also often referred to as scVDJ‑seq / scTCR‑seq / scBCR‑seq). 
+It starts from the basics and builds up to more advanced analyses, so it can serve both as a first stop for newcomers and as a focused introduction to specific topics for experienced readers.
+
+### What you'll learn
+
+* Load single‑cell V(D)J data and sample metadata into `immunarch`.
+* Define receptors (AA vs NT), set chain‑pairing rules, and perform essential QC.
+* Define repertoires.
+* Explore repertoire features: expansion, gene usage, CDR3 properties, and diversity.
+* Quantify overlap/similarity between samples and conditions.
+* Discover public receptors and their statistics.
+* Link receptors to single‑cell transcriptomic clusters for downstream interpretation.
+
+### Dataset used in this tutorial
+
+We will work with data for *patient 6* from the study *“Peripheral T cell expansion predicts tumour infiltration and clinical response”* 
+(Wu *et al.*; *Nature* 579:274–278, 2020). The dataset includes three compartments per patient: 
+*tumour*, *peripheral blood*, and *normal adjacent tissue (NAT)*. We will demonstrate a typical single‑cell AIRR workflow 
+across these three samples. Here are the main findings of the study:
+
+* Deep single‑cell RNA/TCR profiling across tumour, NAT, and blood
+* Clonotypic expansion of effector‑like T cells in and around tumours
+* Patients with stronger peripheral expansion signatures tend to respond better to anti‑PD‑(L)1 therapy
+* Expanded intratumoural clonotypes are often detectable in blood, enabling convenient monitoring
+
+**References & data access:**
+
+* Wu TD, Madireddi S, de Almeida PE, *et al.* *Nature* (2020). “Peripheral T cell expansion predicts tumour infiltration and clinical response.”
+* GEO series: **GSE139555** (single‑cell RNA/TCR; pretreatment samples from 14 patients; tumour/NAT/blood).
+
+### Helpful links
+
+* Links for the source code and issue tracker: [`immunomind/immunarch`](https://github.com/immunomind/immunarch) · [`immunomind/immundata`](https://github.com/immunomind/immundata)
+* Link for the coding agent skills: [`immunomind/skills`](https://github.com/immunomind/skills)
+
+<!-- TODO: Nextflow pipeline --> 
+
+---
+
+## Setup
+
+=== "R"
+
+    ### Pre-requisites
+    
+    * R ≥ 4.2 (4.3+ recommended)
+    * ~2-4 GB RAM free for the small demonstration subset used here
+    
+    You can install the required packages with `pak` (recommended for reproducibility and fast binary installs) or with base installers.
+
+### Using `pak` (recommended)
+
+=== "R"
+
+    ```{r}
+    #| eval: false
+    install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
+    
+    # We use development versions of the packages here because CRAN releases take time.
+    pak::pak("immunomind/immundata@dev")
+    pak::pak("immunomind/immunarch@dev")
+    pak::pak("Seurat")
+    pak::pak("BiocFileCache")
+    pak::pak("ggthemes")
+    pak::pak("ggsci")
+    ```
+
+### Using CRAN
+
+> *Tip:* If you prefer fully reproducible environments, consider using `renv::init()` to snapshot package versions.
+
+=== "R"
+
+    ```{r}
+    #| eval: false
+    install.packages(c("immunarch", "Seurat", "BiocFileCache", "ggthemes", "ggsci"))
+    ```
+
+
+### Load packages and set up the environment
+
+=== "R"
+
+    ```{r}
+    #| label: load-immunarch
+    #| eval: true
+    #| echo: true
+    #| message: false
+    #| warning: false
+    
+    # Silence noisy startup messages while loading
+    suppressPackageStartupMessages({
+      library(immunarch)
+      library(Seurat)
+      library(BiocFileCache)
+      library(ggplot2)
+      library(ggthemes)
+      library(ggsci)
+    })
+    
+    theme_set(ggthemes::theme_few())
+    
+    sessionInfo()
+    ```
+
+---
+
+## Typical workflow: from files to analysis
+
+Analysing single-cell AIRR data with `immunarch` and `immundata` follows a reproducible workflow that separates data ingestion from downstream transformation and annotation.
+Sounds scary, but in reality it is a rather straightforward approach: load and preprocess the data first, and analyse it second - instead of having steps mixed in an arbitrary order.
+This separation lets you reanalyse large datasets without repeatedly reading and preprocessing the original receptor files.
+
+The workflow is divided into two phases.
+
+1. **Ingestion phase**
+
+   * Read the manifest file with immune repertoire metadata (optional but recommended)
+   * Define receptors using a schema (e.g., single or paired chains, custom features)
+   * Optionally define a repertoire schema (to compare repertoire-level statistics such as diversity)
+   * Load AIRR-seq files from disk
+   * Process the input files and store the dataset as an immutable, on-disk `ImmunData` object.
+
+2. **Transformation phase**
+
+   * Annotate `ImmunData` with external information (e.g., scRNA-seq clusters, immunogenicity information)
+   * Regroup repertoires on the fly (e.g., by tissue, donor, or cell state) to better reflect the biomarkers you are looking for
+   * Filter, mutate, and compute statistics
+   * Visualize results, save plots, or export annotations back to Seurat/AnnData
+
+You can read more about the phases in [Concepts → Ingestion Phase](https://immunomind.github.io/docs/concepts/workflow/phase_ingestion/).
+
+### Note: materialization
+
+> **Tip:** Use materialization for final summaries, plots, or tables, but keep your core ImmunData object on disk and in its lazy, efficient format for most analyses.
+
+The `ImmunData` object from `immundata` is designed to handle large, out-of-memory datasets efficiently.
+Instead of loading everything into RAM, it stores computations and only runs them when the results are actually needed, e.g., for plotting or summarizing data. This is called *lazy evaluation*.
+
+*Materialization* means executing all pending computations and bringing the results into memory as a concrete table or data frame. 
+This approach is powerful for working with large datasets, but can be unfamiliar if you're used to working entirely in-memory.
+
+If you see an error like:
+
+```
+Error: Materialization is disabled, use collect() or as_tibble() to materialize.
+```
+
+…it means your data hasn't been materialized yet (i.e., the computation hasn't run and the results aren't present in R memory).
+
+* For small results (e.g., summary stats, small tables), simply call `collect()` or `as_tibble()` at the end of your pipeline to materialize the data:
+
+  ```r
+  result <- some_immunarch_function(idata) |> collect()
+  ```
+* For large datasets (e.g., a fully filtered `ImmunData` object), avoid materializing unless you're sure you need all data in memory — this could use significant RAM and slow down your workflow.
+
+You can read more about materialization in [Concepts → Immutability](https://immunomind.github.io/docs/concepts/immutability/).
+
+---
+
+## Working with data
+
+### Load AIRR data
+
+First, we need to load sample metadata from the manifest file. The manifest file is a tab-separated table, where each row represents a sample (or file), and columns contain sample-level features such as `"Tissue"`, `"Donor"`, or `"ImmunotherapyResponse"`.
+
+=== "R"
+
+    ```{r}
+    #| label: load-dataset-manifest
+    #| eval: true
+    
+    manifest_file <- system.file("extdata/single_cell", "manifest.csv", package = "immundata")
+    manifest_file
+    
+    manifest <- read_manifest(manifest_file)
+    manifest
+    ```
+
+The `"Tissue"` column defines which biological compartment (tumour, blood, or NAT) each sample comes from. We'll use it to split data into repertoires. Later in this tutorial, you'll see how to dynamically split data by other annotations, such as cell clusters from scRNA-seq.
+
+Next, get the file paths to the V(D)J data packaged with `immundata`:
+
+=== "R"
+
+    ```{r}
+    #| label: load-dataset-files
+    #| eval: true
+    
+    inp_files <- paste0(system.file("extdata/single_cell", "", package = "immundata"), "/*.csv.gz")
+    inp_files
+    ```
+
+What is a “receptor” from a data analysis perspective? A receptor is the central unit of analysis and is defined by:
+
+* The features used for grouping (e.g., `cdr3`, `v_call`, `j_call`)
+* The chains involved (e.g., `TRB` for TCR beta, or paired `TRA`+`TRB`)
+
+Defining a receptor schema lets you flexibly group TCR/BCR sequences for downstream analysis and compute statistics on them.
+
+Here's how to define a basic single-chain receptor schema: TRB chains, grouped by both `cdr3` and `v_call` (amino acid sequence and V gene).
+
+=== "R"
+
+    ```{r}
+    #| label: load-dataset-schema
+    #| eval: true
+    
+    schema <- make_receptor_schema(features = c("cdr3", "v_call"), chains = c("TRB"))
+    schema
+    ```
+
+If you want to use other receptor definitions, you can create and pass custom schemas to `read_repertoires()`. Below are a few examples:
+
+=== "R"
+
+    ```{r}
+    #| label: load-dataset-schema-examples
+    #| eval: true
+    
+    # Paired-chain
+    schema <- make_receptor_schema(features = c("cdr3", "v_call"), chains = c("TRA", "TRB"))
+    schema
+    
+    # Single-chain with "cdr3" only
+    schema <- make_receptor_schema(features = c("cdr3"), chains = c("TRA"))
+    schema
+    
+    # The strictest receptor definition
+    schema <- make_receptor_schema(features = c("cdr3", "v_call", "j_call"), chains = c("TRA", "TRB"))
+    schema
+    ```
+
+The main entry point for loading AIRR-seq data into the `immunarch` framework is the `read_repertoires()` function from `immundata`.
+This function handles everything from reading raw files, to preprocessing and aggregation, to joining sample metadata and saving an efficient on-disk ImmunData object for reproducible analysis.
+
+The key parameters you'll want to understand:
+
+* **`path`**: vector of input file paths, e.g., to AIRR TSV, 10X CSV, or Parquet files. (You can use `Sys.glob()` to collect files.)
+* **`schema`**: defines how receptors are grouped; typically created with `make_receptor_schema()`.
+* **`manifest`**: optional data frame with sample-level metadata, read by `read_manifest()`.
+* **`barcode_col`**: name of the column containing cell barcodes (e.g., `"barcode"` for 10x single-cell data); this triggers single-cell logic.
+* **`locus_col`**: name of the column specifying the chain (e.g., `"locus"` for TRA/TRB distinction).
+* **`umi_col`**: column for UMI counts (e.g., `"umis"`); used to select dominant chains per barcode.
+* **`preprocess`**: list of preprocessing steps to apply before aggregation. The preset `make_default_preprocessing("10x")` works for standard 10x data.
+* **`repertoire_schema`**: columns in metadata (or annotation) used to define repertoires (e.g., `"Tissue"` to split by compartment).
+
+Here's how to use it on the packaged single-cell demo dataset:
+
+=== "R"
+
+    ```{r}
+    #| label: load-dataset-airr
+    #| eval: true
+    #| cache: false
+    #| collapse: true
+    
+    schema <- make_receptor_schema(features = c("cdr3", "v_call"), chains = c("TRB"))
+    
+    idata <- read_repertoires(path = inp_files, 
+                              schema = schema, 
+                              manifest = manifest, 
+                              barcode_col = "barcode", 
+                              locus_col = "locus",  # Mind that we use `locus` here because of the default column renaming "chain" -> "locus" for 10xGenomics files
+                              umi_col = "umis",
+                              preprocess = make_default_preprocessing("10x"), 
+                              repertoire_schema = "Tissue")
+    
+    idata
+    ```
+
+
+The result, `idata`, is an ImmunData object: a columnar, on-disk structure optimised for immune repertoire analysis. You can query, annotate and regroup it while working efficiently with data that may not fit in memory.
+
+### Load scRNAseq data
+
+If you're working with single-cell transcriptomics, you'll usually want to bring in cluster annotations or cell type labels. This can be done with a simple TSV table, or directly from a Seurat/AnnData object.
+Let’s load the bundled cell annotations and use them to annotate our immune receptors:
+
+=== "R"
+
+    ```{r}
+    #| label: load-dataset-cells
+    #| eval: true
+    
+    cells_file <- system.file("extdata/single_cell", "cells.tsv.gz", package = "immundata")
+    cells_file
+    
+    cells <- readr::read_tsv(cells_file)
+    head(cells)
+    ```
+
+To visualize gene expression and link it with immune repertoires, load the expression matrix into a Seurat object. Here, we use a cached RDS to speed up the tutorial:
+
+=== "R"
+
+    ```{r}
+    #| label: load-dataset-seurat
+    #| eval: true
+    #| warning: false
+    
+    url <- "https://zenodo.org/records/15604205/files/l6data.rds?download=1"
+    dest <- BiocFileCache::bfcrpath(BiocFileCache::BiocFileCache(ask = FALSE), url)
+    
+    mat <- readr::read_rds(dest)
+    
+    sdata <- CreateSeuratObject(counts = mat)
+    
+    embeddings <- as.matrix(cells[c("UMAP_1", "UMAP_2")])
+    rownames(embeddings) <- cells$barcode
+    
+    umap_dr <- CreateDimReducObject(embeddings = embeddings, key = "UMAP_", assay = DefaultAssay(sdata))
+    
+    sdata[["umap"]] <- umap_dr
+    
+    Idents(sdata) <- setNames(cells$ident, cells$barcode)
+    
+    DimPlot(sdata, reduction = "umap", order = sort(unique(cells$ident), decreasing = TRUE), label = TRUE, alpha = .5)
+    ```
+
+> **Tip:** The `cells` object here includes precomputed UMAP coordinates to save time. In a real-world workflow, you would extract cluster labels and embeddings from your processed Seurat/AnnData object and merge them with your immune receptor data for downstream analysis.
+
+### How to read other types of data — bulk, single-chain, etc.
+
+The `read_repertoires()` function is flexible and supports many repertoire data types and formats. Here are practical patterns for different scenarios. Use these examples as templates to adapt to your own data sources and formats.
+
+> **Note:** These code blocks are for demonstration and not intended to run as part of this tutorial.
+> The "Tissue" column must be present in your data if you want to define repertoires by tissue.
+
+#### 1. Bulk sequencing
+
+For bulk AIRR-seq data, you generally don't need `barcode_col`, `locus_col`, or `umi_col`. Optionally provide `count_col` if your data includes receptor counts.
+
+=== "R"  
+
+    ```{r}
+    #| label: load-dataset-types-bulk
+    #| eval: false
+    
+    idata <- read_repertoires(path = inp_files, 
+                              schema = schema, 
+                              manifest = manifest, 
+                              count_col = "counts", 
+                              preprocess = make_default_preprocessing("airr"), 
+                              repertoire_schema = "Tissue")
+    ```
+
+#### 2. Single-cell sequencing
+
+For single-cell data, you'll typically need all columns (barcode, locus, UMI) for proper chain aggregation and cell assignment.
+
+=== "R"  
+
+    ```{r}
+    #| label: load-dataset-types-singlecell
+    #| eval: false
+    
+    idata <- read_repertoires(path = inp_files, 
+                              schema = schema, 
+                              manifest = manifest, 
+                              barcode_col = "barcode", 
+                              locus_col = "chain", 
+                              umi_col = "umis", 
+                              preprocess = make_default_preprocessing("10x"), 
+                              repertoire_schema = "Tissue")
+    ```
+
+#### 3. AIRR-C or 10x Genomics format
+
+Both AIRR-C and 10x Genomics formats are supported. Pay attention to the receptor schema, locus column (`locus` or `chain`), and use the correct preset for `make_default_preprocessing()`.
+
+=== "R"  
+
+    ```{r}
+    #| label: load-dataset-types-10x
+    #| eval: false
+    
+    #
+    # AIRR-C
+    #
+    schema <- make_receptor_schema(features = c("junction_aa", "v_call"), chains = "TCRB")
+    # or
+    schema <- make_receptor_schema(features = c("cdr3_aa", "v_call"), chains = "TCRB")
+    # reminder how to read paired-chain data if needed:
+    schema <- make_receptor_schema(features = c("cdr3_aa", "v_call"), chains = c("TCRA", "TCRB"))
+    
+    idata <- read_repertoires(path = inp_files, 
+                              schema = schema, 
+                              manifest = manifest,
+                              barcode_col = "cell_id",
+                              locus_col = "locus",
+                              umi_col = "umi_count", 
+                              preprocess = make_default_preprocessing("airr"), 
+                              repertoire_schema = "Tissue")
+    
+    #
+    # 10XGenomics
+    #
+    
+    # This is how the original schema would look like
+    schema <- make_receptor_schema(features = c("cdr3_aa", "v_gene"), chains = "TRB")
+    
+    idata <- read_repertoires(path = inp_files, 
+                              schema = schema, 
+                              manifest = manifest, 
+                              barcode_col = "barcode", 
+                              locus_col = "chain", 
+                              umi_col = "umis", 
+                              preprocess = make_default_preprocessing("10x"),
+                              rename_columns = NULL,
+                              repertoire_schema = "Tissue")
+    
+    # Immundata renames some columns by default to match them with AIRR-C format.
+    # So we use this:
+    schema <- make_receptor_schema(features = c("cdr3", "v_call"), chains = "TRB")
+    
+    idata <- read_repertoires(path = inp_files, 
+                              schema = schema, 
+                              manifest = manifest, 
+                              barcode_col = "barcode", 
+                              locus_col = "locus", 
+                              umi_col = "umis", 
+                              preprocess = make_default_preprocessing("10x"),
+                              repertoire_schema = "Tissue")
+    ```
+
+#### 4. Reading file paths from manifest
+
+If your manifest contains file paths, you can use the special `path = "<manifest>"` argument. Specify which column in your manifest has the file paths with `manifest_file_col`.
+
+=== "R"
+
+    ```{r}
+    #| label: load-dataset-types-meta
+    #| eval: false
+    
+    idata <- read_repertoires(path = "<manifest>", 
+                              schema = schema, 
+                              manifest = manifest, 
+                              barcode_col = "barcode", 
+                              locus_col = "locus",
+                              umi_col = "umis", 
+                              preprocess = make_default_preprocessing("10x"),
+                              repertoire_schema = "Tissue")
+    ```
+
+---
+
+## Analyse immune repertoire-level statistics
+
+### Key immune repertoire statistics
+
+A well-designed immune repertoire analysis always starts with a set of basic descriptive statistics. These help you:
+
+* Check data quality (e.g., are all samples/cell types well-represented?)
+* Spot technical artifacts (e.g., biased V gene usage, length skews)
+* Summarize diversity and composition for downstream biological or clinical questions
+
+The `immunarch` package provides a family of functions, `airr_desc_*`, to quickly compute these statistics from your `ImmunData` object.
+To see all options or details, run `?airr_desc` in your R console.
+
+Currently there are three functions to compute key statistics:
+
+1. `airr_desc_chains()` *counts the number of chains (e.g., TRA, TRB, IGH units) and unique receptors per repertoire/sample.*
+  Use this for library size, capture depth, and to check chain balance (e.g., are you missing TRA?).
+
+2. `airr_desc_lengths()` *summarizes the CDR3 length distribution per repertoire.*
+  Reveals if your data has technical biases, primer effects, or biologically meaningful skews (like more long or short clones in a disease).
+
+3. `airr_desc_genes()` *counts the usage of V, D, or J genes per repertoire/sample/cluster.*
+  Essential for characterizing repertoire composition, comparing patient groups, or making features for ML models.
+
+
+#### 1a. Number of receptors and barcodes for samples
+
+Let's start by quantifying two basic properties:
+
+ * Number of unique barcodes per sample (reflects cell yield)
+ 
+ * Number of unique receptors per sample (reflects immune diversity)
+
+These metrics are often used as a first-line QC and as a way to detect outliers or sample-specific technical effects. Large differences in barcode count may indicate sample quality or biological differences (e.g., tumour-infiltrating T cell abundance, malignant cells). Receptor count per sample gives a sense of diversity captured and can flag technical dropouts or high expansion. Fewer unique receptors relative to the number of cells can indicate greater clonal expansion. It is useful to investigate the biological and technical factors behind this pattern.
+
+=== "R"
+
+    ```{r}
+    #| label: repertoire-stats-sample-plot
+    #| eval: true
+    #| fig-width: 11
+    idata_stats <- airr_desc_chains(idata)
+    
+    idata_stats
+    
+    idata_stats |> vis()
+    ```
+
+The plot shows the number of unique receptors against the number of barcodes. The dashed lines indicate the ratio between them. Repertoires on the 100% line have one unique receptor per barcode. Those on the 50% line have, on average, two barcodes per unique receptor.
+
+This plot shows one aggregated repertoire per tissue. To examine statistics for individual cell clusters, we first need to redefine the repertoires.
+
+#### 1b. Number of receptors and barcodes for cell clusters
+
+The basic sample-level view is barely useful, and often you want to see how immune repertoires are distributed within cell subpopulations, e.g., by T cell cluster. With single-cell data, this is straightforward thanks to the flexible annotation model in `immundata`.
+
+Currently, the `idata` object holds three repertoires, one for each tissue. Let's check that:
+
+=== "R"
+
+    ```{r}
+    #| label: repertoire-stats-show-repertoires
+    #| eval: true
+    
+    idata$repertoires
+    ```
+
+To break down repertoire statistics by cluster, we'll annotate immune receptors with cluster labels from the single-cell data (`sdata`). Both `idata` and `cells` (and the Seurat object) share cell barcodes, so we can safely map clusters onto the immune data:
+
+=== "R"
+
+    ```{r}
+    #| label: repertoire-stats-cluster
+    #| eval: true
+    #| cache: false
+    
+    # Build a tibble: cluster label per barcode (cell)
+    annot <- tibble(Cluster = as.character(Idents(sdata)), barcode = names(Idents(sdata)))
+    
+    annot
+    
+    # Annotate ImmunData by barcode
+    idata <- annotate_barcodes(idata, annot, "barcode")
+    
+    # Magic: we redefine what a repertoire is on-the-fly
+    idata <- agg_repertoires(idata, c("Tissue", "Cluster"))
+    
+    # Now each repertoire is a unique (Tissue, Cluster) pair
+    idata$repertoires
+    ```
+
+Now is a good time to save a snapshot. You've run several heavy steps and defined your working dataset: tissue annotations, cluster labels, and more. A snapshot freezes this state for reproducibility. Learn why in the [Concepts → Immutability](https://immunomind.github.io/docs/concepts/basics/immutability/).
+
+Use `write_immundata()` to save a snapshot to disk.
+You can then load it to continue working with the saved dataset.
+
+=== "R"
+
+    ```{r}
+    #| label: snapshot
+    #| eval: true
+    #| cache: false
+    #| collapse: true
+    
+    idata <- write_immundata(idata, "./immundata-files")
+    ```
+
+
+Now let's recompute and visualize statistics at this new level of granularity:
+
+=== "R"
+
+    ```{r}
+    #| label: repertoire-stats-cluster-plot
+    #| eval: true
+    #| fig-width: 11
+    idata_stats <- airr_desc_chains(idata)
+    
+    idata_stats
+    
+    idata_stats |> vis(label = "Cluster", fill = "Tissue")
+    ```
+
+> **Note:** You may see NAs, or an unexpectedly high number of receptors per barcode (especially in tumor samples), if you analyze only the "TRB" chain. This happens because a single barcode can have multiple TRB contigs, due to technical or biological reasons (e.g., malignant cells).
+Switching to a paired-chain (TRA + TRB) schema forces `immundata` to collapse these into a single receptor pair per barcode, producing a clearer one-cell-one-receptor relationship and making cluster-level summaries more interpretable.
+
+Homework for you: try running this analysis with a paired-chain schema (see earlier examples). The rest of your code will remain unchanged — that's the power of decoupling data structure (`immundata` data structure) from analysis logic (`immunarch` functions)!
+
+We can also normalize by the total number of barcodes per tissue for fairer cross-tissue comparison:
+
+=== "R"
+
+    ```{r}
+    #| label: repertoire-stats-cluster-plot-norm
+    #| eval: true
+    #| fig-width: 11
+    
+    idata_stats2 <- idata_stats |> mutate(.by = Tissue, TissueSize = sum(n_barcodes)) |> mutate(n_barcodes_div = n_barcodes / TissueSize)
+    idata_stats2
+    
+    ggplot(data = idata_stats2) + 
+      geom_col(aes(x = Cluster, y = n_barcodes_div, fill = Tissue)) +
+      ggtitle("No. barcodes per sample")
+    ```
+
+* Possible interpretation:
+
+  * You may observe patterns like more Tregs in tumor, more Trm in NAT, etc.
+  
+  * Remember: normalization lets you compare proportions across samples, but absolute numbers (e.g., total cells per tissue) are influenced by capture and sequencing depth.
+
+#### 2a. Global gene usage
+
+One of the most informative immune repertoire features is V(D)J gene segment usage. Shifts in gene usage can reveal biological signatures (e.g., enrichment of certain V genes in tumor-infiltrating clones), technical artifacts, or repertoire biases. Let's create a heatmap showing the frequency of each V gene segment across all cluster-tissue combinations. This gives a compact, bird's-eye view of usage patterns and potential “hotspots” of expansion.
+
+=== "R"
+
+    ```{r}
+    #| label: repertoire-gene-usage-plot
+    #| eval: true
+    #| fig-width: 11
+    #| fig-height: 11
+    
+    gene_usage_full <- airr_desc_genes(
+      idata,
+      gene_col = "v_call",
+      level    = "receptor"
+    )
+    
+    gene_usage_full |> vis(col = c("Cluster", "Tissue"))
+    ```
+
+#### 2b. Most overrepresented V gene segments
+
+The full overview can be difficult to interpret. Let’s focus on the strongest signals: which V genes are most common across samples and repertoires? This can help reveal outlier samples or overall biases.
+
+=== "R"
+  
+    ```{r}
+    #| label: repertoire-gene-usage-top
+    #| eval: true
+    #| fig-width: 11
+    
+    # Compute V gene usage for all repertoires (by receptor count, split by tissue if present)
+    gene_usage_full <- airr_desc_genes(
+      idata,
+      gene_col = "v_call",
+      level    = "receptor"
+    )
+    
+    top_n <- 10
+
+    top_vgenes <- gene_usage_full |> 
+      group_by(Tissue, v_call) |> 
+      summarize(n = sum(n), .groups = "drop") |> 
+      group_by(Tissue) |> 
+      slice_max(order_by = n, n = top_n) |> 
+      ungroup()
+    
+    # Collect the *union* of all top genes across tissues
+    top_gene_set <- unique(top_vgenes$v_call)
+    
+    # Filter to only these V genes for the heatmap (across all clusters and tissues)
+    usage_focus <- gene_usage_full |> 
+      filter(v_call %in% top_gene_set)
+    
+    usage_focus |> vis(col = c("Cluster", "Tissue"))
+    ```
+
+#### 2c. Cluster-specific V gene distribution
+
+We can use the same approach to focus on specific clusters of interest:
+
+=== "R"
+  
+    ```{r}
+    #| label: repertoire-gene-usage-cluster
+    #| eval: true
+    #| fig-width: 11
+    
+    # We use special functions from duckdb to filter clusters of interest
+    gene_usage_full <- idata |> 
+      filter_immundata(dd$regexp_matches(Cluster, "Treg|Trm")) |> 
+      airr_desc_genes(
+        gene_col = "v_call",
+        level    = "receptor"
+      )
+    
+    top_n <- 10
+
+    top_vgenes <- gene_usage_full |> 
+      group_by(Tissue, v_call) |> 
+      summarize(n = sum(n), .groups = "drop") |> 
+      group_by(Tissue) |> 
+      slice_max(order_by = n, n = top_n) |> 
+      ungroup()
+    
+    # Collect the *union* of all top genes across tissues
+    top_gene_set <- unique(top_vgenes$v_call)
+    
+    # Filter to only these V genes for the heatmap (across all clusters and tissues)
+    usage_focus <- gene_usage_full |> 
+      filter(v_call %in% top_gene_set)
+    
+    usage_focus |> vis(col = c("Cluster", "Tissue"))
+    ```
+
+* The rows are the most frequent V genes (union of top N per tissue).
+
+* The columns represent every observed (Cluster, Tissue) combination.
+
+* Color shows how often each V gene appears in each group.
+
+
+#### 3a. CDR3 length distribution for the full dataset
+
+The CDR3 length distribution is a key QC and biological fingerprint of an immune repertoire. It can reveal technical artifacts (e.g., primer/UMI bias), repertoire selection, or expansion of unusual clones in disease states.
+
+We can compute and visualize CDR3 length distributions across all tissues and clusters.
+
+=== "R"
+
+    ```{r}
+    #| label: repertoire-length-dist-all
+    #| eval: true
+    #| fig-width: 11
+    #| warning: false
+    
+    # Compute CDR3 length stats for all repertoires (default is cdr3_aa)
+    length_stats <- airr_desc_lengths(
+      idata,
+      seq_col = "cdr3"
+    )
+    
+    length_stats |> vis(fill = "Tissue", facet = "Tissue")
+    ```
+
+
+#### 3b. CDR3 length distribution for the selected clusters
+
+You can also zoom in on clusters of interest (e.g., Trm, Treg) for fine-grained analysis.
+
+=== "R"
+
+    ```{r}
+    #| label: repertoire-length-dist-clusters
+    #| eval: true
+    #| fig-width: 13
+    #| warning: false
+    
+    # Choose clusters to display
+    selected_clusters <- c("Trm", "Treg")
+    
+    length_stats_sel <- length_stats %>%
+      filter(grepl("Trm|Treg", Cluster))
+    
+    ggplot(length_stats_sel, aes(x = seq_len, y = pct, color = Tissue)) +
+      geom_line(stat = "identity", linewidth = 1.2) +
+      facet_wrap(~ Cluster, scales = "free_y") +
+      ggtitle("CDR3 length distribution in Trm and Treg clusters") +
+      xlab("CDR3 length (amino acids)") +
+      ylab("% receptors") +
+      ggsci::scale_color_locuszoom()
+    ```
+
+* **Possible interpretation:**
+
+  * Most TCR/BCR repertoires peak at 13–15 amino acids for CDR3, but expansions, artifacts, or certain subsets may show longer or shorter tails.
+  * Comparing distributions across tissues/clusters can highlight biologically relevant skewing (e.g., enrichment of unusually long or short CDR3s in tumors).
+
+### Clonality: quantifying immune expansion
+
+Immune repertoires are rarely flat. Certain T or B cell receptors expand dramatically in response to infection, cancer, or autoimmunity. Quantifying clonality lets you:
+
+* Detect immune responses (“public” expansions or tumor-infiltrating clones)
+* Compare the expansion across samples, tissues, or cell states
+* Identify technical problems (e.g., overamplification)
+
+Currently there are three ways to summarize clonality:
+
+1. **`airr_clonality_line`**
+  *Rank–abundance plots*
+  Shows how steep the line of receptor abundances is.
+2. **`airr_clonality_prop`**
+  *Clonal space partitions by proportion*
+  Shows how much space is occupied by hyperexpanded, large, or rare clones.
+3. **`airr_clonality_rank`**
+  *Clonal space partitions by rank*
+  Shows how much space is occupied by receptors from different bins: the 10 most abundant receptors, the 100 most abundant receptors, etc.
+  
+> **Note:** These functions calculate repertoire-level statistics. To label individual receptors by clonality, e.g., to highlight hyperexpanded receptors on a UMAP, use the `annotate_clonality_*()` functions. We’ll return to these in the sections below.
+
+#### 1. Rank abundance
+
+A rank abundance plot shows, for each sample (or group), how cell counts drop as you go from the most to least abundant clone. In other words, how steep the clonal hierarchy is.
+
+* **Steep curves**: few highly expanded clones dominate (e.g., tumor or antigen-driven response)
+* **Flat curves**: repertoire is diverse and even
+
+=== "R"
+
+    ```{r}
+    #| label: repertoire-clonality-line
+    #| eval: true
+    #| fig-width: 11
+    
+    # Compute the abundance (cell/UMI count) for top 1000 clones per repertoire
+    clonal_line <- airr_clonality_line(
+      idata,
+      limit = 1000
+    )
+    clonal_line
+    
+    clonal_line |> vis(color = "Tissue")
+    ```
+
+* **Possible interpretation:**
+  * If you see a sharp drop (“hockey stick” curve), a handful of clones dominate. This is often a hallmark of strong antigen-driven selection.
+  * Flatter curves are typically seen in healthy tissues or naive compartments, reflecting higher diversity.
+
+#### 2. Clonal space partitioning
+
+Sometimes, you want to summarize clonal expansion in a single barplot splitting each repertoire into bins by abundance. For example:
+
+* “Hyperexpanded”: clones with ≥1% of all cells
+* “Large”: ≥0.1%, etc.
+* “Rare”: all the way down to singletons
+
+This lets you compare how much of each tissue or cluster is occupied by hyperexpanded, large, small and rare clones.
+
+=== "R"
+
+    ```{r}
+    #| label: repertoire-clonality-prop
+    #| eval: true
+    #| fig-width: 11
+    
+    clonal_prop <- airr_clonality_prop(idata)
+    clonal_prop
+    
+    clonal_prop |> vis()
+    
+    clonal_prop_per_tissue <- airr_clonality_prop(idata |> agg_repertoires("Tissue"))
+    
+    clonal_prop_per_tissue |> vis(xval = "Tissue")
+    ```
+
+* **Possible interpretation:**
+  * A tumor-infiltrated sample often shows a big block of “hyperexpanded” (or “large”) clones, reflecting a focused immune response or selection.
+  * Healthy tissues or controls should have more “rare” or “small” clones—indicating diverse, unperturbed immunity.
+
+You can repeat this for cell clusters, different patients, or experimental groups simply by re-aggregating repertoires (see earlier sections).
+
+#### 3. Clonal rank bins
+
+Useful for fine-grained analysis: how much of the repertoire is explained by the top 10, top 100, or top 1000 clones?
+
+=== "R"
+
+    ```{r}
+    #| label: repertoire-clonality-rank
+    #| eval: true
+    
+    clonal_rank <- airr_clonality_rank(
+      idata,
+      bins = c(10, 100, 1000)
+    )
+    clonal_rank
+    
+    clonal_rank |> vis()
+    
+    clonal_rank_per_tissue <- airr_clonality_rank(
+      idata |> agg_repertoires("Tissue"),
+      bins = c(10, 100, 1000)
+    )
+    
+    clonal_rank_per_tissue |> vis(xval = "Tissue")
+    ```
+
+> **Tip:** You can also plot this as a heatmap, line plot, or grouped barplot as needed.
+
+* **Best practices & notes:**
+
+  * Always compare clonality to other diversity measures (Shannon, Simpson, etc.) for a complete picture.
+  * Technical artifacts (PCR/UMI bias) can sometimes mimic true expansion—use biological controls and inspect barcodes/cell counts per clone if unsure.
+  * When using clusters or annotations, make sure you have enough cells per group for the statistics to be meaningful.
+  
+
+### Diversity: how rich and even are your repertoires?
+
+True immune diversity is about more than just the number of unique sequences. It's about the balance of clone sizes and the richness of the repertoire - whether a handful of clones dominate or if the population is broad and even.
+Measuring diversity helps you:
+
+* Compare immune health or perturbation across tissues, patients, or clusters
+* Spot narrowing (loss of diversity) in disease, aging, or after therapy
+* Select features for machine learning and biomarker discovery
+
+Diversity is the flip side of clonality:
+
+* **Clonality** highlights enrichment — how much your repertoire is dominated by overexpanded (“clonal”) receptors.
+* **Diversity** measures the overall heterogeneity and evenness of the repertoire — are many clones present, and are they well balanced, or is the repertoire narrow?
+
+In practical terms:
+
+* **High diversity** = many unique clones with relatively similar abundances. Typical of healthy, naive, or unperturbed immunity.
+* **Low diversity** = few clones dominate (high clonality). Often seen in strong immune responses, cancer, infection, or technical issues.
+
+`immunarch` provides multiple diversity estimators, each with its own interpretation. To see all options or details, run `?airr_diversity` in your R console. Supported methods are:
+
+1. **`airr_diversity_dxx()`**
+   *Coverage diversity* — D50, D20, D80…
+   “How many top clones do you need to cover X% of all cells?”
+   Small D50 = a few clones dominate (low diversity); large D50 = highly polyclonal.
+   
+1. **`airr_diversity_chao1()`**
+   *A nonparametric asymptotic estimator* of species richness (number of species in a population).
+   One of the most used methods for estimating immune repertoire diversity.
+
+2. **`airr_diversity_shannon()`**
+   *Shannon entropy* — a gold standard, evenness-aware metric for diversity.
+   Higher values = more diverse and even repertoire.
+
+3. **`airr_diversity_pielou()`**
+   *Pielou's evenness* — entropy normalized by clone count, ranges \[0, 1].
+   Use when comparing repertoires of very different sizes.
+
+4. **`airr_diversity_index()`**
+   *Hill number (q=1)* — the “effective number” of clones, combines richness and evenness.
+   Intuitive and robust: “How many equally frequent clones would give this entropy?”
+
+5. **`airr_diversity_hill()`**
+   *Hill diversity profile (q=0,1,2, ...)*
+   Powerful for exploring sensitivity to rare vs. abundant clones.
+
+   * q=0: just unique count (“richness”)
+   * q=1: entropy-based (exp(Shannon))
+   * q=2: Simpson's index (abundant clones dominate)
+   
+=== "R"
+   
+    ```{r}
+    #| label: repertoire-diversity-metrics
+    #| eval: true
+    
+    # 1. Coverage diversity — D50: how many clones cover 50% of the repertoire?
+    d50 <- airr_diversity_dxx(idata, perc = 50)
+    p1 <- d50 |> vis()
+    
+    # 3. Chao1 — non-parametric estimator of species richness (number of unique receptors)
+    chao <- airr_diversity_chao1(idata)
+    p2 <- chao |> vis(fill = "Tissue")
+    
+    # 3. Shannon entropy — classical diversity (higher = more even)
+    shannon <- airr_diversity_shannon(idata)
+    p3 <- shannon |> vis(xval = "Cluster")
+    
+    # 4. Pielou's evenness (normalized entropy, 0 = dominated, 1 = perfectly even)
+    pielou <- airr_diversity_pielou(idata)
+    p4 <- pielou |> vis(xval = "Tissue")
+    p5 <- pielou |> vis(facet = "Tissue", fill = "Cluster", dir = "v")
+    
+    # 5. Hill number (q=1): the “effective number of clones”
+    hill1 <- airr_diversity_index(idata)
+    
+    # 6. Hill diversity profile (q=0, 1, 2, ...)
+    hill_profile <- airr_diversity_hill(idata, q = c(0, 1, 2))
+    
+    p1
+    p2
+    p3
+    p4
+    p5
+    ```
+
+#### Rarefaction analysis
+
+The three tissues were sampled at different depths. Before interpreting their
+diversity, we will inspect richness as a function of the number of retained T
+cells and repeat a comparison at a common cell count. In other words, we will explore  how sampling depth affects diversity.
+
+We create a tissue-level object for the following examples. The original
+`idata` still contains the tissue-by-cluster repertoires defined earlier.
+Here, counts and proportions refer to all retained TRB-bearing cells in each
+tissue, and receptor identity remains CDR3 amino-acid sequence plus V gene.
+
+=== "R"
+
+    ```{r}
+    #| label: tissue-analysis-reference
+    #| collapse: true
+    #| eval: true
+
+    idata_tissue <- agg_repertoires(idata, "Tissue")
+    idata_tissue$repertoires
+    ```
+
+`airr_diversity_rarefaction()` estimates how many distinct receptors would be
+observed at each sampling depth. We use absolute cell counts and richness
+(`norm = FALSE`) and disable extrapolation, so every curve stays within that
+tissue's observed sampling depth. The ribbons summarize uncertainty under the
+estimator's bootstrap model.
+
+=== "R"
+
+    ```{r}
+    #| label: tissue-diversity-rarefaction
+    #| collapse: true
+    #| eval: true
+    #| fig-width: 9
+
+    set.seed(42)
+    
+    tissue_rarefaction <- airr_diversity_rarefaction(
+      idata_tissue,
+      norm = FALSE,
+      extrapolation = 0,
+      nboot = 50,
+      verbose = FALSE
+    )
+    
+    vis(tissue_rarefaction, color = "Tissue") +
+      labs(x = "Retained cells sampled", y = "Expected distinct receptors")
+    ```
+
+Compare curves at the same cell count, rather than comparing only their final
+points. A rising curve indicates that more sampling is expected to reveal more
+receptors.
+
+#### Repeat the comparison at a common cell count
+
+`downsample_immundata()` samples whole cells without replacement and returns a
+new `ImmunData`.
+
+=== "R"
+
+    ```{r}
+    #| label: tissue-diversity-common-depth
+    #| collapse: true
+    #| eval: true
+    #| fig-width: 9
+
+    common_depth <- min(idata_tissue$repertoires$n_barcodes)
+    idata_equal_depth <- downsample_immundata(
+      idata_tissue, n = common_depth, seed = 42
+    )
+    idata_equal_depth$repertoires
+
+    shannon_depth <- bind_rows(
+      airr_diversity_shannon(idata_tissue) |> mutate(Depth = "Observed"),
+      airr_diversity_shannon(idata_equal_depth) |> mutate(Depth = "Equal cell count")
+    )
+
+    ggplot(shannon_depth, aes(x = Tissue, y = shannon, fill = Depth)) +
+      geom_col(position = "dodge") +
+      labs(x = "Tissue", y = "Shannon entropy (bits)", fill = "Sampling depth")
+    ```
+
+This is one reproducible sensitivity check. For a substantive comparison,
+repeat downsampling with several seeds and examine whether the conclusion
+persists. Equal cell counts do not correct differences in cell capture or
+replace independent biological replicates. We will continue the receptor-selection
+examples with `idata_tissue` in the section after the next one.
+
+> We can now calculate statistics for individual repertoires.
+> But how similar are the repertoires to one another?
+> In the next section, we’ll compare them using their receptor features.
+
+---
+
+## Quantify repertoire similarity
+
+In immunology, public receptors are TCRs or BCRs that appear in multiple individuals or samples, suggesting convergent responses to shared antigens, or technical “publicity” due to biases.
+Measuring the overlap between repertoires helps you:
+
+* Check for a signal of shared, or “public,” immune receptors.
+* QC for sample swap, cross-contamination, or replicate similarity
+* Compare cohort similarity or donor-sharing at scale
+
+`immunarch` provides the following functions for quantifying this:
+
+* **`repsim_intersection()`**
+  *Intersection: how many receptor identities were observed in both tissues?*
+  Use for overlap heatmaps, or to check how much two samples have in common.
+
+* **`repsim_jaccard()`**
+  *Jaccard similarity: what fraction of the combined set of observed identities is shared?* (⁠|A∩B| / |A∪B|⁠).
+  This normalizes for differences in sample size—great for comparing across experiments or donors.
+  
+* **`repsim_chao_jaccard()`**
+  *Chao-Jaccard similarity: how similar are the repertoires after estimating the contribution of shared receptors missed through limited sampling?*
+  Accounts for the sampling randomness.
+  
+* **`repsim_morisita_horn()`**
+  *Morisita-Horn similarity: do the same receptors account for much of the cell abundance in both tissues?*
+  Dominant public immune receptors have more influence on this score.
+  
+* **`repsim_bray()`**
+  *Bray-Curtis similarity: how much of the receptor abundance composition is shared between tissues?*
+  Resembles the Morisita-Horn index, more sensitive to the sampling size differences, but gives less weight to extremes and more weight to the rare immune receptors. Good middle ground.
+
+For full options and details, run `?repsim` in your R console.
+
+=== "R"
+
+    ```{r}
+    #| label: tissue-repertoire-similarity
+    #| collapse: true
+    #| eval: true
+    #| fig-width: 9
+
+    repsim_intersection(idata_tissue) |> vis()
+    repsim_jaccard(idata_tissue) |> vis()
+    repsim_chao_jaccard(idata_tissue) |> vis()
+    repsim_morisita_horn(idata_tissue) |> vis()
+    repsim_bray(idata_tissue) |> vis()
+    ```
+
+To examine whether the comparison depends on the largest expansions, repeat
+Bray-Curtis with `transform = "log1p"`. This exploratory transformation changes
+the abundance scale, so interpret the score as similarity on that transformed
+scale rather than a fraction of original cell abundance.
+
+=== "R"
+
+    ```{r}
+    #| label: tissue-repertoire-similarity-bray-log
+    #| eval: true
+    #| collapse: true
+    #| fig-width: 9
+
+    repsim_bray(idata_tissue, transform = "log1p") |> vis()
+    ```
+
+We can also inspect the original proportions of individual receptors shared by
+blood and tumour. Each point in this plot is a shared receptor identity.
+
+=== "R"
+
+    ```{r}
+    #| label: tissue-shared-receptor-proportions
+    #| collapse: true
+    #| eval: true
+    #| fig-width: 9
+
+    vis(idata_tissue, x = "Blood", y = "Tumor", lm = FALSE)
+    ```
+
+> We found receptors shared between repertoires. Which receptors are they, and how can we investigate them? In the next section, we’ll extract, analyse and visualise them.
+
+---
+
+## Discover and annotate immune receptors
+
+> This section was written quickly to cover a frequently requested feature. A more polished version will be available in a future release.
+
+### Track expanded tumour receptors across tissues
+
+Which receptors dominate the tumour, and are they also detected in blood or
+normal adjacent tissue? We select receptors that each account for at least 1%
+of the retained tumour cells, then follow those identities in all three tissues.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-track-tumour
+    #| collapse: true
+    #| eval: true
+    #| fig-width: 9
+
+    tumour_id <- idata_tissue$repertoires |>
+      filter(Tissue == "Tumor") |>
+      pull(imd_repertoire_id)
+
+    tumour_source <- filter(
+      idata_tissue,
+      Tissue == "Tumor", 
+      imd_proportion >= 0.01
+    )
+    tracked_tumour <- vdj_track(
+      idata_tissue,
+      from = tumour_source,
+      output = "df"
+    )
+    tracked_tumour$Tissue <- factor(
+      tracked_tumour$Tissue, levels = c("Blood", "Normal", "Tumor")
+    )
+
+    vis(tracked_tumour, xval = "Tissue", plot = "line")
+    vis(tracked_tumour, xval = "Tissue", plot = "line", yval = "imd_orig_count")
+    ```
+
+The summary has one row per selected receptor and tissue, including zeros where
+the receptor was unobserved. Columns `imd_orig_count` and `imd_orig_proportion` preserve
+the abundances in the original tissue repertoires. In particular, the plotted
+proportions are not renormalized to sum to one over the selected receptors.
+
+For a stacked view, use `plot = "area"`:
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-track-tumour-area
+    #| collapse: true
+    #| eval: true
+    #| fig-width: 9
+
+    vis(tracked_tumour, xval = "Tissue", plot = "area")
+    ```
+
+An alluvial view is available with the optional `ggalluvial` package.
+Install it once with `install.packages("ggalluvial")`, then plot:
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-track-tumour-alluvial
+    #| collapse: true
+    #| eval: true
+    #| fig-width: 9
+
+    vis(tracked_tumour, xval = "Tissue", plot = "alluvial")
+    ```
+
+#### Find the tumour clusters carrying these receptors
+
+Which tumour cell clusters contain the most cells carrying our two expanded
+receptors? `idata` already has tissue-by-cluster repertoires, so we only need to
+filter for tumour cells and pass the same `tumour_source` to `vdj_track()`.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-track-tumour-clusters
+    #| eval: true
+    #| collapse: true
+    #| fig-width: 12
+
+    tumour_clusters <- filter(idata, Tissue == "Tumor", !is.na(Cluster))
+    tracked_clusters <- vdj_track(tumour_clusters,
+      from = tumour_source, output = "df")
+
+    vis(tracked_clusters, xval = "Cluster", plot = "line",
+      yval = "imd_orig_count", title = "Tumour-expanded receptors by cell cluster") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    ```
+
+To inspect the peaks, list the three clusters containing the most cells for
+each receptor. The percentage is relative to all retained TRB-bearing cells
+in that cluster, so it also helps compare clusters of different sizes.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-track-tumour-cluster-peaks
+    #| eval: true
+    #| collapse: true
+
+    cluster_peaks <- tracked_clusters |>
+      filter(imd_orig_count > 0) |>
+      slice_max(imd_orig_count, n = 3, by = c(cdr3, v_call), with_ties = FALSE) |>
+      mutate(cluster_percent = 100 * imd_orig_proportion) |>
+      select(Cluster, cdr3, v_call, imd_orig_count, cluster_percent)
+    knitr::kable(cluster_peaks, digits = 1,
+      col.names = c("Cluster", "CDR3 amino acids", "V gene", "Cells", "Cluster cells (%)"))
+    ```
+
+In this dataset, `CASSGGGSGYNEQFF` with `TRBV7-6` has its largest labelled-cell
+count in `8.3c-Trm`, while `CASSLLRNSGNTIYF` with `TRBV28` peaks in `8.3a-Trm`.
+The cluster with the most cells need not have the highest within-cluster
+percentage.
+
+#### Find the selected receptors on the single-cell UMAP
+
+Build a compact panel of the selected CDR3–V combinations and annotate the full
+tissue object.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-track-tumour-umap
+    #| collapse: true
+    #| eval: true
+    #| fig-width: 9
+
+    tumour_panel <- tracked_tumour |>
+      distinct(cdr3, v_call) |>
+      duckplyr::as_duckdb_tibble() |>
+      mutate(tumour_receptor_group = "Expanded tumour receptor")
+
+    idata_tumour_marked <- annotate_with_database(
+      idata_tissue,
+      db = tumour_panel,
+      by = c(cdr3 = "cdr3", v_call = "v_call"),
+      label_col = "tumour_receptor_group"
+    ) |>
+      mutate(tumour_receptor_group = coalesce(
+        tumour_receptor_group, "Other retained TRB"
+      ))
+
+    sdata_tumour <- annotate_seurat(
+      idata_tumour_marked, sdata, cols = "tumour_receptor_group"
+    )
+    sdata_tumour$tumour_receptor_group[
+      is.na(sdata_tumour$tumour_receptor_group)
+    ] <- "No retained TRB"
+
+    DimPlot(sdata_tumour, reduction = "umap",
+      group.by = "tumour_receptor_group", order = "Expanded tumour receptor",
+      cols = c("Expanded tumour receptor" = "#1E40AF",
+        "Other retained TRB" = "#D8B365", "No retained TRB" = "#8C8C8C"))
+    ```
+
+The labels distinguish cells carrying a selected receptor, other cells with a
+retained TRB, and transcriptomic cells without a retained TRB in this analysis.
+Blue marks the selected receptors, tan marks other retained TRBs, and grey
+marks cells without a retained TRB.
+
+### Select shared and tissue-restricted receptors
+
+`annotate_public()` adds sharing statistics while retaining the full object.
+With one repertoire per tissue, `imd_public_incidence` is the number of tissues
+in which a receptor was observed. We can transfer this label to Seurat using
+the same barcode interface as for clonality annotations (see below).
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-annotate-tissue-sharing
+    #| collapse: true
+    #| eval: true
+    #| fig-width: 9
+
+    idata_tissue_public <- annotate_public(idata_tissue)
+    sdata_public <- annotate_seurat(
+      idata_tissue_public, sdata, cols = "imd_public_incidence"
+    )
+    sdata_public$tissue_sharing <- ifelse(
+      is.na(sdata_public$imd_public_incidence), "No retained TRB",
+      paste0("Observed in ", sdata_public$imd_public_incidence, " tissue(s)")
+    )
+    DimPlot(sdata_public, reduction = "umap",
+      group.by = "tissue_sharing", shuffle = TRUE)
+    ```
+
+#### Summarize receptor sharing directly
+
+The receptor-level summary complements the cell-level UMAP. Pass the annotated
+object to `vis()` to count distinct receptor identities by the number of
+repertoires in which they were detected. Reusing `idata_tissue_public` avoids
+recomputing the annotations, or you can use
+`annotate_public(idata_tissue) |> vis(plot = "incidence")`.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-tissue-sharing-incidence
+    #| eval: true
+    #| collapse: true
+    #| fig-width: 9
+
+    idata_tissue_public |> vis(plot = "incidence")
+    ```
+
+Each receptor contributes once to this histogram, regardless of how many cells
+carry it. Here there is one repertoire per tissue, so incidence counts tissues.
+
+#### Show the density of cells carrying shared receptors
+
+We can also draw density contours for cells whose receptor was detected in at
+least two tissues. We use Seurat metadata and UMAP coordinates already held in
+memory; repertoire calculations remain in `ImmunData`.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-tissue-sharing-density
+    #| eval: true
+    #| collapse: true
+    #| fig-width: 9
+
+    sharing_umap <- FetchData(sdata_public,
+      vars = c("UMAP_1", "UMAP_2", "imd_public_incidence"), clean = FALSE)
+    shared_umap <- sharing_umap |>
+      filter(!is.na(imd_public_incidence), imd_public_incidence >= 2)
+
+    ggplot(sharing_umap, aes(x = UMAP_1, y = UMAP_2)) +
+      geom_point(colour = "grey85", size = 0.2) +
+      geom_density_2d(data = shared_umap, colour = "#0072B2",
+        linewidth = 0.6, bins = 6) +
+      coord_equal() +
+      labs(title = "Density of cells carrying shared receptors",
+        subtitle = "Receptors detected in at least two tissues",
+        x = "UMAP 1", y = "UMAP 2")
+    ```
+
+The [density contours](https://ggplot2.tidyverse.org/reference/geom_density_2d.html)
+show where those cells concentrate on the displayed UMAP. They depend on
+sampling and the embedding, and do not measure gene expression or establish
+enrichment relative to the surrounding cells. Use the colouring plot to inspect
+the individual cells and their sharing labels.
+
+`vdj_public()` selects receptor identities according to explicit rules. Every
+rule in one call is evaluated against the original input, and all rules must
+pass. Here we require observation in both tumour and blood, then retain those
+identities wherever they occur, including normal tissue.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-select-tumour-blood-sharing
+    #| collapse: true
+    #| eval: true
+    #| fig-width: 9
+
+    blood_id <- idata_tissue$repertoires |>
+      filter(Tissue == "Blood") |>
+      pull(imd_repertoire_id)
+
+    shared_tumour_blood <- vdj_public(
+      idata_tissue,
+      make_public_filter(repertoires = tumour_id, min_incidence = 1L),
+      make_public_filter(repertoires = blood_id, min_incidence = 1L)
+    )
+
+    vis(shared_tumour_blood, plot = "public", reference = idata_tissue,
+      xval = "Tissue", fill = "Tissue")
+    ```
+
+Bars show the fraction of original tissue cell abundance carried by the selected
+receptors. Dots show how many of the selected receptor identities were detected
+in each tissue, divided by the size of the selected identity set. These are
+different denominators: a few expanded receptors can occupy much of a tissue's
+cell abundance even when only a small fraction of the selected identities is
+detected there.
+
+To find tumour-restricted candidates, require an observed tumour proportion of
+at least 0.1% and no observations in blood or normal tissue:
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-select-tumour-restricted
+    #| collapse: true
+    #| eval: true
+
+    other_tissue_ids <- idata_tissue$repertoires |>
+      filter(Tissue != "Tumor") |>
+      pull(imd_repertoire_id)
+
+    tumour_restricted <- vdj_public(
+      idata_tissue,
+      make_public_filter(repertoires = tumour_id,
+        min_proportion = 0.001, min_incidence = 1L),
+      make_public_filter(repertoires = other_tissue_ids, max_incidence = 0L)
+    )
+    tumour_restricted
+    ```
+
+### Annotate CMV-associated sequences from VDJdb
+
+This workflow has three steps: prepare a reference panel, annotate our receptors,
+then track and visualize the matches. We use human TRB records associated with
+CMV from the pinned [VDJdb 2026-06-03 release](https://github.com/antigenomics/vdjdb-db/releases/tag/2026-06-03).
+
+#### Load the reference panel
+
+Download the archive once through `BiocFileCache` and extract its slim table.
+Subsequent runs reuse the cached download.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-database-load-vdjdb
+    #| eval: true
+    #| collapse: true
+    #| message: false
+
+    vdjdb_zip <- BiocFileCache::bfcrpath(
+      BiocFileCache::BiocFileCache(ask = FALSE),
+      "https://github.com/antigenomics/vdjdb-db/releases/download/2026-06-03/vdjdb-2026-06-03.zip"
+    )
+    utils::unzip(vdjdb_zip, files = "vdjdb-2026-06-03/vdjdb.slim.txt", exdir = tempdir())
+    vdjdb <- duckplyr::read_csv_duckdb(
+      file.path(tempdir(), "vdjdb-2026-06-03/vdjdb.slim.txt"),
+      options = list(delim = "\t", max_line_size = 10000000)
+    )
+
+    cmv_panel <- vdjdb |>
+      filter(species == "HomoSapiens", gene == "TRB",
+        antigen.species == "CMV", vdjdb.score > 0) |>
+      distinct(cdr3, gene) |>
+      mutate(cmv_db_match = TRUE) |>
+      compute()
+    ```
+
+We keep positive-score records and one row per CDR3–locus combination. This
+makes the panel a simple yes/no annotation and prevents repeated database
+records from duplicating our cells.
+
+#### Annotate and inspect the matches
+
+`annotate_with_database()` adds the match label to `ImmunData`. We then select
+the labelled receptors and ask `vdj_track()` for their abundances in the original
+tissue repertoires.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-database-annotate-cmv
+    #| eval: true
+    #| collapse: true
+
+    idata_cmv <- annotate_with_database(
+      idata_tissue, db = cmv_panel,
+      by = c(cdr3 = "cdr3", locus = "gene"), label_col = "cmv_db_match"
+    )
+    cmv_receptors <- filter(idata_cmv, cmv_db_match)
+    cmv_tracking <- vdj_track(idata_tissue, from = cmv_receptors, output = "df")
+
+    cmv_matches <- cmv_tracking |>
+      filter(imd_orig_count > 0) |>
+      select(Tissue, cdr3, v_call, imd_orig_count)
+    knitr::kable(cmv_matches,
+      col.names = c("Tissue", "CDR3 amino acids", "V gene", "Cells"))
+    ```
+
+The table shows `r nrow(cmv_matches)` detected receptor–tissue combinations,
+carried by `r sum(cmv_matches$imd_orig_count)` cells. Matching uses **CDR3 and
+locus**, while our receptor identities still include the V gene.
+
+#### Highlight the matched cells and follow their abundances
+
+Transfer the match label to Seurat and highlight the matching cells. Large red
+points make these rare matches visible against the grey background.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-database-cmv-umap
+    #| eval: true
+    #| collapse: true
+    #| fig-width: 9
+
+    sdata_cmv <- annotate_seurat(idata_cmv, sdata, cols = "cmv_db_match")
+    sdata_cmv$cmv_db_match <- sdata_cmv$cmv_db_match %in% TRUE
+    cmv_cells <- WhichCells(sdata_cmv, expression = cmv_db_match %in% TRUE)
+    DimPlot(sdata_cmv, reduction = "umap",
+      cells.highlight = list("CMV-panel match" = cmv_cells),
+      cols = "grey85", cols.highlight = "#D73027",
+      pt.size = 0.15, sizes.highlight = 2.5)
+    ```
+
+There are `r length(cmv_cells)` matched cells in this Seurat object. Matched VDJ
+cells absent from the transcriptomic object cannot appear on its UMAP.
+
+Plot the same receptors across tissues with `vis()`. Counts and proportions
+refer to the original tissue repertoires, including zero where unobserved.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-database-track-cmv
+    #| eval: true
+    #| collapse: true
+    #| fig-width: 9
+
+    vis(cmv_tracking, xval = "Tissue", plot = "line")
+    ```
+
+
+### Annotating receptors by clonality
+
+Clonality tells us how overabundant a receptor is inside a repertoire.
+Here we add a label per receptor, then pass a single label per cell to Seurat for easy plotting on UMAP.
+
+You can choose one of two simple rules:
+
+- **By proportion** (recommended to start): bins like *Hyperexpanded*, *Large*, … based on the receptor's `proportion` within the repertoire.
+- **By rank**: bins by the receptor's **rank** (top 10, top 100, …) within the repertoire.
+
+Both helpers keep your data intact and add new columns to `ImmunData`.
+
+> **Note:** Thresholds are heuristics. They are good defaults, but are not universal truths. You have been warned.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-annotate-clonality
+    #| collapse: true
+    #| eval: true
+    #| fig-width: 9
+  
+    idata <- annotate_clonality_prop(idata)
+    
+    sdata <- annotate_seurat(idata, sdata, cols = "clonal_prop_bin")
+    
+    Seurat::DimPlot(sdata, reduction = "umap", group.by = "clonal_prop_bin", shuffle = TRUE)
+    
+    idata <- annotate_clonality_rank(idata)
+    
+    sdata <- annotate_seurat(idata, sdata, cols = "clonal_rank_bin")
+    
+    Seurat::DimPlot(sdata, reduction = "umap", group.by = "clonal_rank_bin", shuffle = TRUE)
+    ```
+
+
+<!--
+
+### Other sections
+
+The following sections are under construction as I currently develop the receptor-level analysis functionality. I plan to release the most commonly used functions in November 2025. Monitor my [LinkedIn](https://www.linkedin.com/in/vdnaz) and [GitHub](https://github.com/immunomind/immunarch/issues/432) for news and updates.
+
+The planned topics are:
+
+- use external databases to find CMV-specific receptors in the input repertoires
+
+- track specific CMV-related receptors through different tissues and highlight them on single-cell UMAP
+
+- analyse and plot counts of specific receptors vs. expression of genes of interest
+
+- public repertoire analysis - discover receptors which are suspiciously overabundant in one groups of repertoires in contrast to another groups of repertoires (e.g., control vs condition to search for TIL or antigen-specific receptors)
+
+- all of above but using levenshtein-based similarity instead of exact matches
+
+---
+
+## [WIP] Analyse subgroups of receptors of interest
+
+This is section is too under constructions. Planned content:
+
+- discover receptors of interest, e.g., CMV-specific
+
+- run analysis to compare sum/avg abundance of such receptors between groups to measure the level of signal
+
+-->
+
+---
+
+## [WIP] Conclusion
+
+No spoilers. :-)
+
+---
+
+## Appendix A: Function naming schema
+
+`immunarch` follows a specific naming scheme to distinguish between output types of the different functions and clearly split the functions to different domains of AIRR data analysis. In other words, just by looking at the function name, you can infer two things:
+
+- what to expect as an output from this function
+
+- to what domain of data analysis it belongs, e.g., diversity, Ig analysis, etc.
+
+A positive consequence of having functions splitted to large domains or "function families" is to have documentation for one function family in one place. E.g., you can run `?airr_desc` to get help for **all** functions in the family of descriptive statistics functions. Same for `?annotate_clonality` and others.
+
+Exploratory data analysis functions:
+
+- `airr_*` functions work on the repertoire-level (hence "AIRR") and compute per-repertoire descriptive statistics. They return repertoire-level statistics — a table with per-repertoire computed statistics and joined metadata for the downstream analysis and visualisation convenience.
+
+- `annotate_*` functions work on the receptor-level and return the input `ImmunData`s but with new columns added. Because `ImmunData` is immutable data structure, strictly speaking, you always get a new `ImmunData` with additional annotation columns added, but with the same receptor structure and counts, but you can think that this is the very same object you passed to the function as an input.
+
+- `repsim_*` functions work on the inter-repertoire level and return similarity or distance matrices depending on the method used. E.g., a matrix with pairwise Jaccard similarities.
+
+- `vdj_*` functions work on the receptor-level. They analyse immune receptors and return a new `ImmunData` following the function logic. The output is usually a completely new and smaller `ImmunData`, e.g., with public receptors or receptors, found in an immunogenicity database. Optionally, they can return a data frame for faster visualisation and analysis, although you need to make sure your RAM can handle it.
+
+> [!NOTE]
+> Q: Why is it different in R and Python? Why can't we have `clonality_annotate` in R
+> or `annotate_clonality` in Python?
+>
+> A: This is an opinionated decision made to emulate the modules of Python in R.
+> There is no system of modules in R, so to ensure more convenient user experience, 
+> I provide functions in this way to minimize the amount of scope names to remember. There are
+> almost 10 diversity metrics alone, and remembering all of this could be quite
+cumbersome. Instead, a user can always press
+> "tab" to autocomplete function names from `airr_diversity_*`.
+> In Python, the reasoning is different.
+> Due to the modular structure of packages, it is easier to split the scope into different
+> domains, e.g., `immunarch.clonality` or `immunarch.public`, so the necessary scopes
+> could be imported to the workspace. Hence the Python users look for modules with a
+> specific scope first, and export necessary methods.
+
+---
+
+## Appendix B: Database match details
+
+These optional checks let you inspect the evidence behind the CMV panel and
+which matched VDJ cells are present in Seurat. They are not required for the
+annotation and plotting pipeline above.
+
+### Inspect the supporting VDJdb records
+
+The table below lists the qualifying database records for the observed CDR3
+sequences. V/J calls, HLA and paired alpha chains were not required for matching.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-database-cmv-evidence
+    #| eval: true
+    #| collapse: true
+
+    cmv_sequences <- cmv_matches |>
+      distinct(cdr3) |>
+      duckplyr::as_duckdb_tibble()
+    cmv_evidence <- vdjdb |>
+      filter(species == "HomoSapiens", gene == "TRB",
+        antigen.species == "CMV", vdjdb.score > 0) |>
+      semi_join(cmv_sequences, by = "cdr3") |>
+      select(cdr3, antigen.epitope, antigen.gene, mhc.a, vdjdb.score) |>
+      distinct() |>
+      collect()
+    knitr::kable(cmv_evidence,
+      col.names = c("CDR3 amino acids", "Epitope", "Antigen gene", "MHC", "Score"))
+    ```
+
+### Check transcriptomic coverage
+
+Only the small matched subset is collected here. `in_seurat` identifies the
+matched cells that can be placed on the transcriptomic UMAP.
+
+=== "R"
+
+    ```{r}
+    #| label: receptor-database-cmv-barcode-check
+    #| eval: true
+    #| collapse: true
+
+    cmv_cell_details <- cmv_receptors |>
+      collect() |>
+      distinct(Tissue, cdr3, v_call, imd_barcode) |>
+      mutate(in_seurat = imd_barcode %in% colnames(sdata))
+    knitr::kable(cmv_cell_details)
+    ```
+
+
+---
+
+## Testing zone
+
+Small test here and there, don't mind me, nothing suspicious is going on here...
+
+=== "R"
+
+    ```{r}
+    #| eval: false
+    c(1,2,3) |> sum()
+    ```
+
+=== "Python"
+
+    ```{python}
+    #| eval: false
+    max([1,2,3])
+    ```
+
+Text block as a divider...
+
+=== "R"
+
+    ```{r}
+    #| eval: true
+    c(1,2,3) |> sum()
+    ```
+
+=== "Python"
+
+    ```{python}
+    #| eval: true
+    max([1,2,3])
+    ```

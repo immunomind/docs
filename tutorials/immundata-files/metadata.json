@@ -1,0 +1,79 @@
+{
+  "format_version": 2,
+  "package_version": "0.1.0.9003",
+  "schema_receptor": {
+    "features": ["cdr3", "v_call"],
+    "chains": "TRB"
+  },
+  "schema_repertoire": ["Tissue", "Cluster"],
+  "schema_strata": null,
+  "repertoires": {
+    "imd_repertoire_id": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51],
+    "Tissue": ["Blood", "Blood", "Blood", "Blood", "Blood", "Blood", "Blood", "Blood", "Blood", "Blood", "Blood", "Blood", "Blood", "Blood", "Blood", "Blood", "Blood", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor", "Tumor"],
+    "Cluster": ["3.1-MT", "4.1-Trm", "4.2-RPL32", "4.3-TCF7", "4.4-FOS", "4.5-IL6ST", "4.6a-Treg", "4.6b-Treg", "8.1-Teff", "8.2-Tem", "8.3a-Trm", "8.3b-Trm", "8.3c-Trm", "8.4-Chrom", "8.5-Mitosis", "8.6-KLRB1", null, "3.1-MT", "4.1-Trm", "4.2-RPL32", "4.3-TCF7", "4.4-FOS", "4.5-IL6ST", "4.6a-Treg", "4.6b-Treg", "8.1-Teff", "8.2-Tem", "8.3a-Trm", "8.3b-Trm", "8.3c-Trm", "8.4-Chrom", "8.5-Mitosis", "8.6-KLRB1", null, "3.1-MT", "4.1-Trm", "4.2-RPL32", "4.3-TCF7", "4.4-FOS", "4.5-IL6ST", "4.6a-Treg", "4.6b-Treg", "8.1-Teff", "8.2-Tem", "8.3a-Trm", "8.3b-Trm", "8.3c-Trm", "8.4-Chrom", "8.5-Mitosis", "8.6-KLRB1", null],
+    "n_barcodes": [160, 248, 501, 1000, 588, 167, 192, 22, 57, 125, 271, 31, 49, 23, 39, 65, 282, 233, 444, 222, 593, 527, 151, 137, 50, 225, 316, 1345, 356, 482, 147, 43, 54, 631, 75, 284, 125, 569, 299, 262, 482, 183, 50, 251, 162, 197, 208, 50, 145, 29, 3404],
+    "n_receptors": [157, 247, 499, 995, 584, 167, 187, 22, 50, 115, 270, 30, 49, 23, 38, 62, 275, 171, 270, 211, 589, 469, 145, 133, 38, 140, 205, 442, 97, 211, 116, 41, 54, 388, 59, 215, 125, 557, 283, 218, 300, 123, 44, 190, 121, 77, 123, 49, 115, 27, 1988]
+  },
+  "producer": {
+    "function": "write_immundata"
+  },
+  "snapshot_id": "imd_20261120T142319Z_igo54jjz",
+  "lineage": [
+    {
+      "event": "ingestion",
+      "created_at": "2026-11-20T14:20:07Z",
+      "snapshot_id": "imd_20261120T142007Z_lu8d4q0h",
+      "producer": {
+        "function": "read_repertoires"
+      },
+      "inputs": {
+        "files": ["/home/runner/work/_temp/Library/immundata/extdata/single_cell/lb6.csv.gz", "/home/runner/work/_temp/Library/immundata/extdata/single_cell/ln6.csv.gz", "/home/runner/work/_temp/Library/immundata/extdata/single_cell/lt6.csv.gz"],
+        "manifest_joined": true,
+        "enforce_schema": true
+      },
+      "args": {
+        "barcode_col": "barcode",
+        "count_col": null,
+        "locus_col": "locus",
+        "umi_col": "umis",
+        "manifest_file_col": "file"
+      },
+      "column_lineage": {
+        "renamed": {
+          "requested": ["v_gene", "d_gene", "j_gene", "d_gene", "chain"],
+          "applied": ["v_gene", "d_gene", "j_gene", "d_gene", "chain"],
+          "not_found": []
+        },
+        "dropped": {
+          "applied": ["is_cell", "contig_id", "high_confidence", "length", "full_length", "raw_clonotype_id", "raw_consensus_id"]
+        }
+      },
+      "pipeline": {
+        "prematerialize": {
+          "requested": true,
+          "applied": true
+        },
+        "preprocess": ["exclude_columns", "filter_nonproductive"],
+        "postprocess": "prefix_barcodes"
+      }
+    },
+    {
+      "event": "snapshot",
+      "created_at": "2026-11-20T14:23:19Z",
+      "snapshot_id": "imd_20261120T142319Z_igo54jjz",
+      "producer": {
+        "function": "write_immundata"
+      },
+      "source_path": "/home/runner/work/_temp/Library/immundata/extdata/single_cell/immundata-lb6.csv",
+      "snapshot_path": "./immundata-files"
+    }
+  ],
+  "provenance": {
+    "home_path": "/home/runner/work/_temp/Library/immundata/extdata/single_cell/immundata-lb6.csv",
+    "current_path": "/home/runner/work/docs/docs/docs/source/tutorials/immundata-files",
+    "snapshot_root": "/home/runner/work/_temp/Library/immundata/extdata/single_cell/immundata-lb6.csv/snapshots",
+    "artifacts_root": "/home/runner/work/_temp/Library/immundata/extdata/single_cell/immundata-lb6.csv/artifacts",
+    "artifacts_path": "/home/runner/work/_temp/Library/immundata/extdata/single_cell/immundata-lb6.csv/artifacts/by-id/imd_20261120T142319Z_igo54jjz"
+  },
+  "extensions": []
+}
